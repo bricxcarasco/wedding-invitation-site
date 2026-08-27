@@ -1,0 +1,490 @@
+/* ==========================================================================
+   InvitationEnvelope — component-scoped artwork and open animation
+   --------------------------------------------------------------------------
+   Requirements: 1.1, 1.2, 1.3, 1.5, 1.7, 1.8, 10.4, 10.5, 11.4, 12.4.
+
+   WHY THIS FILE EXISTS. `src/index.css` is owned by task 1.3 and must not be
+   modified, and the envelope needs keyframes that do not exist there
+   (`.ambient` / `ambient-drift` are the only motion primitives index.css
+   publishes for the gate). Everything the envelope alone needs therefore lives
+   here, colocated with the component and imported by it. Nothing in this file
+   is used by any other component.
+
+   COLOUR RULE. Every colour is derived from the `@theme` tokens in
+   `src/index.css` via `var(--color-*)` and `color-mix()`. No Palette hex is
+   written out here — requirement 14.6 keeps those literals to
+   `weddingConfig.js` and the `@theme` block, and the source-scan test in task
+   8.3 sweeps `src/components/` for them. Plain `white` is not a Palette value,
+   so it is used freely as a tint.
+
+   ANIMATED PROPERTIES. `transform` and `opacity`, and nothing else, in every
+   keyframe below (12.4). Counting distinct concurrently-animated properties
+   for the section: two while closed (mote drift, envelope float, caption
+   breathe) and two while opening (flap, seal, card, dissolve) — inside the
+   three-property ceiling of 10.5. No width, height, top, left, box-shadow,
+   filter, or background is ever transitioned or keyframed; the several static
+   `box-shadow` and `filter` declarations paint once and never change.
+
+   REDUCED MOTION. Handled in two layers, neither of them here. The component
+   omits the mote field and the idle classes outright when `useMotion()` reports
+   `reduce` (1.8), and the global `@media (prefers-reduced-motion: reduce)`
+   block in `src/index.css` neutralises every authored animation as a safety
+   net. That global block is deliberately not duplicated in this file: one
+   policy, one place.
+   ========================================================================== */
+
+/* --- The gate surface (1.1, 1.2) ---------------------------------------- */
+
+.gate {
+  /* `min-h-screen` on the element covers browsers without dvh; this refines it
+     so mobile browser chrome cannot push the envelope off centre. */
+  min-block-size: 100dvh;
+}
+
+/* The ground: Cream, warmed at the top by a wide Light Sage bloom and cooled
+   at the bottom-left by a trace of Sage, so the surface has direction and depth
+   instead of reading as a flat fill. Three stacked gradients, painted once. */
+.gate__ground {
+  background-image:
+    radial-gradient(
+      130% 92% at 50% 4%,
+      color-mix(in srgb, var(--color-sage-light) 40%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      95% 75% at 10% 104%,
+      color-mix(in srgb, var(--color-sage) 16%, transparent) 0%,
+      transparent 68%
+    ),
+    linear-gradient(
+      168deg,
+      var(--color-cream-soft) 0%,
+      var(--color-cream) 55%,
+      color-mix(in srgb, var(--color-cream) 84%, var(--color-sage-light)) 100%
+    );
+}
+
+/* A soft inner vignette pulls the eye to the centre of the frame. Static. */
+.gate__vignette {
+  box-shadow: inset 0 0 clamp(90px, 22vw, 220px) clamp(20px, 6vw, 70px)
+    color-mix(in srgb, var(--color-sage) 12%, transparent);
+}
+
+/* The bloom of light the envelope dissolves into. Invisible until the opening
+   sequence flares it, which also carries the reduced-motion cross-fade: the
+   global block collapses its duration to nil, so `reduce` gets an instant wash
+   to light rather than a 1.6s film. */
+.gate__bloom {
+  opacity: 0;
+  background-image: radial-gradient(
+    58% 46% at 50% 47%,
+    color-mix(in srgb, white 78%, var(--color-cream-soft)) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 62%, transparent) 45%,
+    transparent 72%
+  );
+}
+
+/* --- Ambient motes (1.2) ------------------------------------------------ */
+/* `.ambient` in index.css owns position, radius, and the shared `ambient-drift`
+   loop; each span supplies its own size, offset, delay, and duration inline so
+   the scatter reads naturally. This class only retints them: `.ambient`
+   defaults to Cream Soft, which would be invisible against a Cream ground, so
+   the motes are pulled towards Light Sage and given a soft cream halo. Declared
+   unlayered, so it wins over the `@layer components` rule it overrides. */
+.gate__mote {
+  background-color: color-mix(in srgb, var(--color-sage-light) 82%, white);
+  box-shadow: 0 0 12px 3px
+    color-mix(in srgb, var(--color-cream-soft) 60%, transparent);
+}
+
+/* --- Activation surface (1.5, 1.7, 10.4, 11.4) -------------------------- */
+/* `.control` in index.css supplies the ≥44×44 floor, the hover lift, and the
+   Sage `:focus-visible` ring. This adds only what is specific to the gate. */
+.gate__button {
+  background: none;
+  border: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Once the sequence is running the guard in the handler already refuses a
+   second activation; this stops the cursor from inviting one. Focus is
+   untouched on purpose — `pointer-events` does not affect it, so a keyboard
+   user is not stranded mid-animation. */
+.gate--opening .gate__button {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* --- Envelope geometry -------------------------------------------------- */
+
+.envelope-stage {
+  /* Gives the flap lift real depth. Static, so it costs nothing per frame. */
+  perspective: 1400px;
+}
+
+.envelope {
+  position: relative;
+  inline-size: clamp(272px, 76vw, 448px);
+  /* Close to a landscape A7 invitation envelope. */
+  aspect-ratio: 7 / 5;
+  transform-style: preserve-3d;
+}
+
+/* The paper body: a warm Cream sheet, a hairline Silver edge, a bright top
+   highlight, and two stacked shadows — one tight for contact, one wide and soft
+   for the lift off the page. Reads as heavy letterpress stock. */
+.envelope__base {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background-image: linear-gradient(
+    152deg,
+    color-mix(in srgb, var(--color-cream-soft) 90%, white) 0%,
+    var(--color-cream) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-silver) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.75),
+    0 16px 34px -16px color-mix(in srgb, var(--color-sage-deep) 42%, transparent),
+    0 44px 84px -42px color-mix(in srgb, var(--color-sage-deep) 55%, transparent);
+}
+
+/* The card inside. It needs no `opacity: 0` to stay secret while the gate is
+   closed: it sits at z-index 1 and the opaque folds at z-index 2 cover the
+   whole sheet, so it is genuinely behind the paper rather than merely faded
+   out. When the flap lifts it is revealed in place, then rises. */
+.envelope__card {
+  position: absolute;
+  inset: 7% 8% 9%;
+  z-index: 1;
+  border-radius: 2px;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, white 92%, var(--color-cream-soft)) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 90%, white) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-silver) 42%, transparent);
+  box-shadow: 0 10px 24px -14px
+    color-mix(in srgb, var(--color-sage-deep) 38%, transparent);
+}
+
+/* Two Sage hairlines stand in for print. Requirement 1.4 forbids any wedding
+   data on the gate, so the card carries rules rather than words — it reads as a
+   printed card without printing a name, a date, or a venue. */
+.envelope__card::before,
+.envelope__card::after {
+  content: "";
+  position: absolute;
+  block-size: 1px;
+}
+
+.envelope__card::before {
+  inset-inline: 24%;
+  inset-block-start: 33%;
+  background-color: color-mix(in srgb, var(--color-sage-light) 72%, transparent);
+}
+
+.envelope__card::after {
+  inset-inline: 33%;
+  inset-block-start: 42%;
+  background-color: color-mix(in srgb, var(--color-sage-light) 44%, transparent);
+}
+
+/* --- The folds ---------------------------------------------------------- */
+
+.envelope__fold {
+  position: absolute;
+  z-index: 2;
+}
+
+/* Side wings, each a triangle whose apex meets the middle of the sheet. The
+   90deg gradients make the two folds catch light from opposite sides, which is
+   what makes the paper look folded rather than drawn. */
+.envelope__fold--left {
+  inset: 0 50% 0 0;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-cream) 94%, var(--color-sage-light)) 0%,
+    var(--color-cream-soft) 100%
+  );
+}
+
+.envelope__fold--right {
+  inset: 0 0 0 50%;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  background-image: linear-gradient(
+    270deg,
+    color-mix(in srgb, var(--color-cream) 90%, var(--color-sage-light)) 0%,
+    var(--color-cream-soft) 100%
+  );
+}
+
+/* The bottom fold laps over both wings, apex a little above the midline. The
+   drop-shadow draws the two diagonal fold lines for free. */
+.envelope__fold--bottom {
+  inset: 44% 0 0 0;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  background-image: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-cream) 97%, var(--color-sage-light)) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 96%, white) 100%
+  );
+  filter: drop-shadow(
+    0 -1px 1px color-mix(in srgb, var(--color-silver) 52%, transparent)
+  );
+}
+
+/* --- The top flap ------------------------------------------------------- */
+/* Two faces on a shared 3D wrapper, the classic card-flip arrangement. The
+   wrapper carries no `clip-path`: that property is a grouping property and
+   would flatten `preserve-3d`, killing the fold. The faces carry it instead. */
+.envelope__flap {
+  position: absolute;
+  inset: 0 0 auto 0;
+  block-size: 58%;
+  z-index: 3;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+}
+
+.envelope__flap-face,
+.envelope__flap-back {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  backface-visibility: hidden;
+}
+
+/* Outer face: Sage, lit from the top-left. */
+.envelope__flap-face {
+  background-image: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--color-sage-light) 86%, white) 0%,
+    var(--color-sage-light) 32%,
+    var(--color-sage) 100%
+  );
+}
+
+/* Underside: the darker Sage the fold shows once it passes vertical. */
+.envelope__flap-back {
+  transform: rotateX(180deg);
+  background-image: linear-gradient(
+    158deg,
+    var(--color-sage-deep) 0%,
+    color-mix(in srgb, var(--color-sage) 88%, var(--color-sage-deep)) 100%
+  );
+}
+
+/* A hairline Cream crease along the fold, so the flap has an edge. */
+.envelope__flap-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 45%, transparent);
+}
+
+/* --- The seal ----------------------------------------------------------- */
+/* Wax, not a monogram: a domed Sage disc with a specular highlight, an
+   engraved Cream ring, and a single Cream point at its centre. No initials, no
+   letters, nothing that could carry wedding data (1.4). */
+.envelope__seal {
+  --seal-size: 52px;
+  position: absolute;
+  z-index: 4;
+  inline-size: var(--seal-size);
+  block-size: var(--seal-size);
+  left: calc(50% - var(--seal-size) / 2);
+  top: calc(58% - var(--seal-size) / 2);
+  border-radius: 9999px;
+  background-image: radial-gradient(
+    circle at 34% 27%,
+    color-mix(in srgb, var(--color-sage-light) 72%, white) 0%,
+    var(--color-sage) 44%,
+    var(--color-sage-deep) 100%
+  );
+  box-shadow:
+    0 6px 14px -6px color-mix(in srgb, var(--color-sage-deep) 72%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 22%, transparent);
+}
+
+@media (min-width: 640px) {
+  .envelope__seal {
+    --seal-size: 62px;
+  }
+}
+
+.envelope__seal::before,
+.envelope__seal::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+}
+
+.envelope__seal::before {
+  inset: 22%;
+  border: 1px solid color-mix(in srgb, var(--color-cream-soft) 52%, transparent);
+}
+
+.envelope__seal::after {
+  inset: 43%;
+  background-color: color-mix(in srgb, var(--color-cream-soft) 78%, transparent);
+}
+
+/* --- Idle motion, closed state ------------------------------------------ */
+/* Applied only when the gate is closed and motion is not reduced; the
+   component omits both classes under `reduce` rather than relying on the CSS
+   safety net. */
+
+.envelope--idle {
+  animation: envelope-float 6.5s ease-in-out infinite;
+}
+
+.gate__caption--idle {
+  animation: gate-caption-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes envelope-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+@keyframes gate-caption-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --- The opening sequence (1.5) ----------------------------------------- */
+/* One shot, `forwards` on every step so nothing snaps back, and the whole
+   score finishes at 1560ms — inside `OPEN_MS = 1600`, which `App` owns, and
+   inside the 1200–2500ms band requirement 1.5 sets. Read as a score:
+
+     0ms    the wax cracks, twists, and fades
+     140ms  the flap folds back over the top, showing its darker underside
+     620ms  the card lifts out of the envelope
+     1180ms the whole thing dissolves upward into light
+     1560ms done; `App` swaps in the invitation at 1600ms
+
+   The caption leaves immediately, so the instruction is gone before the flap
+   has finished moving and never lingers over the reveal. */
+
+.envelope--opening {
+  animation: envelope-dissolve 380ms ease-in 1180ms forwards;
+}
+
+.envelope--opening .envelope__seal {
+  animation: envelope-seal-break 400ms cubic-bezier(0.3, 0, 0.7, 1) both;
+}
+
+.envelope--opening .envelope__flap {
+  animation: envelope-flap-open 780ms cubic-bezier(0.32, 0.02, 0.18, 1) 140ms
+    forwards;
+}
+
+.envelope--opening .envelope__card {
+  animation: envelope-card-rise 840ms cubic-bezier(0.2, 0.72, 0.14, 1) 620ms
+    forwards;
+}
+
+.gate--opening .gate__caption {
+  animation: gate-caption-out 260ms ease-out 40ms forwards;
+}
+
+.gate--opening .gate__bloom {
+  animation: gate-bloom 880ms ease-out 800ms forwards;
+}
+
+.gate--opening .gate__moteField {
+  animation: gate-mote-field-out 620ms ease-out 700ms forwards;
+}
+
+@keyframes envelope-seal-break {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.15) rotate(-7deg);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.32) rotate(-11deg);
+    opacity: 0;
+  }
+}
+
+@keyframes envelope-flap-open {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(-172deg);
+  }
+}
+
+@keyframes envelope-card-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.45;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -47%, 0) scale(1.03);
+    opacity: 1;
+  }
+}
+
+@keyframes envelope-dissolve {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -18px, 0) scale(1.07);
+    opacity: 0;
+  }
+}
+
+@keyframes gate-caption-out {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 10px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes gate-bloom {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@keyframes gate-mote-field-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

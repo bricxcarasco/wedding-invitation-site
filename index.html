@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon is a local inline-simple SVG in Palette colours. No external request. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Bricx &amp; Mae — Wedding Invitation</title>
+
+    <!--
+      Share-card metadata. Deliberately carries the couple names only.
+      The ceremony date and the venue names are omitted here because
+      requirement 1.4 forbids them being readable before the envelope is
+      opened, and this markup ships in the static document.
+      No og:image, no external font, no third-party tag: the initial request
+      set stays HTML + CSS + JS (requirement 12.1).
+    -->
+    <meta
+      name="description"
+      content="An invitation to the wedding of Bricx &amp; Mae. Open the envelope to see the details."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Bricx &amp; Mae — Wedding Invitation" />
+    <meta
+      property="og:description"
+      content="An invitation to the wedding of Bricx &amp; Mae. Open the envelope to see the details."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Bricx &amp; Mae — Wedding Invitation" />
+    <meta
+      name="twitter:description"
+      content="An invitation to the wedding of Bricx &amp; Mae. Open the envelope to see the details."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!--
+      NETLIFY FORM DETECTION STUB — DO NOT DELETE. This is not dead code.
+
+      Why it exists (requirement 8.3):
+        Netlify's form detector runs at deploy time against the built static
+        HTML and never executes JavaScript. The live RSVP form is rendered by
+        React, so the detector cannot see it, and a POST to an unregistered
+        form name is rejected. This stub is the copy the detector parses, which
+        is what registers the "rsvp" form on the site.
+
+      Why it lives here and not inside #root:
+        React's reconciler owns everything under #root. Anything placed there
+        would be wiped on the first render and could collide with the live
+        form's DOM. As a sibling it is invisible to React and permanent.
+
+      Why it does not breach requirement 1.4:
+        It carries field NAMES only — no couple name, no ceremony date, no
+        venue name, no readable label text. Four independent layers keep it out
+        of rendering, out of the accessibility tree, out of find-in-page and
+        out of tab order: `hidden`, `display: none`, `aria-hidden`, `inert`,
+        plus `tabindex="-1"` on every control. It survives a stylesheet
+        failure.
+
+      Field names must stay in lockstep with the live form in src/components/
+      Rsvp.jsx (form-name, guestName, attendance, guestCount, message).
+      A test asserts that agreement, so do not rename one side alone.
+    -->
+    <form name="rsvp" data-netlify="true" hidden inert aria-hidden="true" style="display:none">
+      <input type="hidden" name="form-name" value="rsvp" />
+      <input type="text" name="guestName" tabindex="-1" />
+      <input type="text" name="attendance" tabindex="-1" />
+      <input type="number" name="guestCount" tabindex="-1" />
+      <textarea name="message" tabindex="-1"></textarea>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,140 @@
+/* ==========================================================================
+   HeroConfetti — component-scoped falling-confetti artwork and drift animation
+   --------------------------------------------------------------------------
+   A gentle, romantic drift of leaves, stars, hearts, and glitter behind the
+   hero copy. Atmosphere, not decoration-with-weight: subtle opacities, soft
+   Sage/Cream tones, slow fall.
+
+   WHY THIS FILE EXISTS. `src/index.css` is shared and must not be modified, so
+   everything only the confetti needs lives here, colocated with the component
+   and imported by it. Nothing here is used by any other component.
+
+   COLOUR RULE. Every colour derives from the `@theme` tokens in `src/index.css`
+   via `var(--color-*)` and `color-mix()`. No Palette hex literal is written
+   here (14.6). Plain `white` is not a Palette value, so it is used freely as a
+   tint — the same allowance the envelope takes.
+
+   ANIMATED PROPERTIES. `transform` and `opacity`, and nothing else, in the one
+   keyframe below (12.4) — compositor-only. No width, height, top, left,
+   box-shadow, filter, or background is ever transitioned or keyframed; the
+   static `box-shadow`/`filter` declarations paint once and never change.
+
+   REDUCED MOTION. The component returns `null` under reduce, so nothing is
+   rendered. The media block at the foot of this file is a safety net for the
+   case where the layer is ever mounted anyway.
+   ========================================================================== */
+
+/* --- The layer ----------------------------------------------------------- */
+/* Fills the hero section, clips to it (the section carries overflow-hidden),
+   sits BEHIND the hero text on a low z-index, and never intercepts a click. */
+.hero-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- A confetti piece ---------------------------------------------------- */
+/* Position, size, delay, and duration all arrive inline from the PIECES table;
+   this rule supplies only what every piece shares: the drift loop and a will-
+   change hint so the compositor promotes each piece to its own layer. `--drift`
+   defaults to 0 so a piece with no inline value simply falls straight. */
+.confetti {
+  position: absolute;
+  display: block;
+  --drift: 0px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* The fall. translateY carries a piece from above the section to well below it
+   (110vh is comfortably past the hero on any viewport); the `--drift` sway and
+   a slow rotate add life; opacity fades in near the top and out near the
+   bottom so pieces never pop in or clip out. Kept subtle — the peak opacity is
+   well under 1 so the field reads as atmosphere behind readable text. */
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate3d(var(--drift), 55vh, 0) rotate(180deg);
+    opacity: 0.7;
+  }
+  88% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(calc(var(--drift) * -1), 110vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* --- Leaf / petal -------------------------------------------------------- */
+/* The classic leaf silhouette: opposite corners rounded. Filled with a
+   Sage → Light Sage gradient so it catches a little light as it turns. */
+.confetti--leaf {
+  border-radius: 0 100% 0 100%;
+  background-image: linear-gradient(
+    135deg,
+    var(--color-sage-light) 0%,
+    color-mix(in srgb, var(--color-sage) 80%, var(--color-sage-light)) 100%
+  );
+  opacity: 0.55;
+}
+
+/* --- Star / sparkle ------------------------------------------------------ */
+/* A four-point sparkle cut with clip-path — concave sides give the pinched,
+   twinkling look rather than a solid diamond. Light Sage warmed towards Cream. */
+.confetti--star {
+  clip-path: polygon(
+    50% 0%,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0% 50%,
+    39% 39%
+  );
+  background-color: color-mix(in srgb, var(--color-sage-light) 70%, white);
+  opacity: 0.6;
+}
+
+/* --- Heart --------------------------------------------------------------- */
+/* A CSS heart via clip-path — one element, no pseudo bookkeeping, and it
+   inherits the piece's transform cleanly. Soft Sage, kept delicate. */
+.confetti--heart {
+  clip-path: path(
+    "M12 21c-1 0-1.6-.5-2.4-1.2C5.4 16 2 12.9 2 9.2 2 6.4 4.2 4.2 7 4.2c1.6 0 3.1.7 4 1.9.9-1.2 2.4-1.9 4-1.9 2.8 0 5 2.2 5 5 0 3.7-3.4 6.8-7.6 10.6C13.6 20.5 13 21 12 21z"
+  );
+  background-color: color-mix(in srgb, var(--color-sage) 78%, white);
+  opacity: 0.5;
+}
+
+/* --- Glitter / sparkle dot ----------------------------------------------- */
+/* A tiny round dot with a soft cream glow — the sparkle in the mix. The glow is
+   a static box-shadow (painted once, never animated). */
+.confetti--glitter {
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--color-cream-soft) 60%, white);
+  box-shadow: 0 0 8px 2px
+    color-mix(in srgb, var(--color-sage-light) 55%, transparent);
+  opacity: 0.7;
+}
+
+/* --- Reduced-motion safety net ------------------------------------------- */
+/* Belt-and-braces: the component already returns null under reduce, but if the
+   layer is ever mounted regardless, this collapses it entirely. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-confetti {
+    display: none;
+  }
+}

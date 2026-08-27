@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Theme — Tailwind CSS v4
+   --------------------------------------------------------------------------
+   v4 declares the theme inside the stylesheet, so there is no
+   tailwind.config.js and no PostCSS chain. Every token below becomes a
+   Tailwind utility automatically:
+     --color-sage        → bg-sage / text-sage / border-sage / …
+     --font-display      → font-display
+   The four Palette values are the single visual source of truth for
+   requirements 7.2 and 14.4. weddingConfig.js holds the same four hex values
+   as *data* (so DressCode can print name + hex as text); this block holds them
+   as *style*. Those are the only two places any Palette hex may appear.
+   ========================================================================== */
+@theme {
+  /* --- Palette (14.4, 7.2) ------------------------------------------------ */
+  --color-sage: #55705f;
+  --color-sage-light: #a3b899;
+  --color-cream: #ede0cd;
+  --color-silver: #c0c0c0;
+
+  /* Two derived tones, and no more. `sage-deep` is the default ink: Sage
+     itself is too light against Cream for comfortable long-form reading, and
+     `cream-soft` gives section banding a second surface so depth does not have
+     to come from shadows. Both are shades of tokens above, not new colours. */
+  --color-sage-deep: #34443a;
+  --color-cream-soft: #f6efe4;
+
+  /* --- Fonts (zero bytes, system-resolved) -------------------------------- */
+  /* No @font-face, no webfont file, no external request, by decision.
+     No acceptance criterion asks for a custom typeface, so shipping none costs
+     zero font bytes, makes no external request, and raises no licence
+     question. The initial request set stays exactly HTML + CSS + JS, which
+     strengthens 12.1 rather than merely tolerating it. Both stacks lead with an
+     elegant face common enough to be present on many machines and degrade
+     through named fallbacks to a guaranteed generic, so the typography reads as
+     intentional on every platform. */
+  --font-display: "Cormorant Garamond", Didot, "Playfair Display", Georgia,
+    "Times New Roman", serif;
+  --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    /* 10.1 — stated unconditionally. See the reduced-motion note below for why
+       this declaration is deliberately not inside that media query. */
+    scroll-behavior: smooth;
+
+    /* 11.5 — the ≥16px body-text floor is set once, here, so no section can
+       undercut it by styling itself smaller than the document base. */
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-cream);
+    color: var(--color-sage-deep);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* ==========================================================================
+   Motion and shared component classes
+
+   Every animated property in this file is `transform` or `opacity` and nothing
+   else (12.4). No width, height, top, left, box-shadow, or filter is
+   transitioned or keyframed. Each class animates at most two properties, which
+   keeps every section inside the three-concurrent-property ceiling of 10.5.
+   ========================================================================== */
+@layer components {
+  /* --- Scroll reveal (10.2) ---------------------------------------------- */
+  /* Toggled once per element by useScrollReveal's IntersectionObserver. Two
+     properties, both compositor-friendly. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 700ms ease-out,
+      transform 700ms ease-out;
+  }
+
+  .reveal--visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger is expressed as transition-delay, so sequencing a group (the Hero's
+     staged entrance, the gallery grid) needs no JavaScript timers and no extra
+     state. The global reduced-motion block zeroes every delay. */
+  .reveal-delay-1 {
+    transition-delay: 80ms;
+  }
+  .reveal-delay-2 {
+    transition-delay: 160ms;
+  }
+  .reveal-delay-3 {
+    transition-delay: 240ms;
+  }
+  .reveal-delay-4 {
+    transition-delay: 320ms;
+  }
+  .reveal-delay-5 {
+    transition-delay: 400ms;
+  }
+  .reveal-delay-6 {
+    transition-delay: 480ms;
+  }
+
+  /* --- Gallery hover (6.6) ----------------------------------------------- */
+  /* 1.04 sits inside the 1.02–1.10 band. One animated property. */
+  .gallery-img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease-out;
+  }
+
+  .gallery-img:hover {
+    transform: scale(1.04);
+  }
+
+  /* --- Parallax (10.3) --------------------------------------------------- */
+  /* useParallax writes --parallax-y onto this node from inside a single rAF, so
+     scrolling produces zero React renders (12.4, 12.5). translate3d keeps the
+     layer on the compositor. */
+  .parallax-layer {
+    transform: translate3d(0, var(--parallax-y, 0px), 0);
+    will-change: transform;
+  }
+
+  /* --- Ambient drift (1.2) ----------------------------------------------- */
+  /* The envelope's floating particles. Individual spans carry their own
+     `animation-delay` and `animation-duration`, and the scatter comes from
+     those staggered values plus per-span positioning — the keyframes
+     themselves are shared, so one loop definition serves every particle. */
+  .ambient {
+    position: absolute;
+    border-radius: 9999px;
+    background-color: var(--color-cream-soft);
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: ambient-drift 14s linear infinite;
+  }
+
+  /* --- Interactive targets (11.4) and hover/focus treatment (10.4) -------- */
+  /* Guarantees a ≥44 × 44px hit area at every viewport width. Applied to the
+     map links, Add to Calendar, the attendance radio options, and the RSVP
+     submit control. */
+  :is(.tap-target, .control) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+
+  /* The shared visible hover state every interactive control gets (10.4). The
+     feedback is carried by transform and opacity only, so it stays compositor-
+     only; colour changes are applied instantly rather than transitioned, which
+     keeps the animated-property set down to the two above. */
+  .control {
+    cursor: pointer;
+    transition:
+      transform 200ms ease-out,
+      opacity 200ms ease-out;
+  }
+
+  .control:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+  }
+
+  .control:active {
+    transform: translateY(0);
+  }
+
+  /* A clear keyboard focus ring in Sage. :focus-visible rather than :focus so
+     pointer users do not see a ring they did not ask for. `outline` is not an
+     animated property here, so this costs nothing against 10.5 / 12.4. */
+  .control:focus-visible,
+  .tap-target:focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* --- Visually hidden --------------------------------------------------- */
+  /* For content that must reach assistive technology but not the visual layout:
+     the countdown's non-live prose summary, the "(opens in a new tab)" note on
+     each external map link, and the RSVP field hints. Tailwind's own `sr-only`
+     utility is equivalent and interchangeable with this class. */
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* Gentle drift loop for the envelope's ambient particles. Transform and opacity
+   only, so it runs entirely on the compositor with no layout or paint work.
+   Particles rise, fade in, and fade out, so staggered animation-delay values
+   across the spans read as a natural scatter rather than a synchronised pulse. */
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.9);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(8px, -45vh, 0) scale(1.15);
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate3d(-6px, -90vh, 0) scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion (10.6, 1.8, 2.5, 4.7, 5.3, 6.8)
+
+   One global block, keyed off the same media query as motion/query.js. This is
+   the CSS half of a two-layer policy: the JS half (useReducedMotion →
+   MotionContext) governs what React decides not to render, and this half
+   neutralises anything the stylesheet owns. Left unlayered and !important so it
+   wins over both the classes above and any Tailwind utility.
+
+   NOTE ON `scroll-behavior: smooth`: it stays OUTSIDE this block on purpose.
+   Requirement 10.1 states it unconditionally, and 10.6's enumerated list of
+   effects to disable — scroll reveals, parallax, particle motion, text reveals,
+   image zoom — does not include smooth scrolling. This looks like an oversight
+   otherwise, so it is called out here rather than silently "fixed": the
+   requirements are followed as written.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+  .reveal,
+  .reveal--visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .gallery-img:hover {
+    transform: none !important;
+  } /* 6.8 */
+  .parallax-layer {
+    transform: none !important;
+  } /* 10.3 → 10.6 */
+  .ambient {
+    display: none !important;
+  } /* 1.8 */
+}
+
+/* ==========================================================================
+   OPTIONAL POLISH — adding a self-hosted display webfont later
+
+   Not a stated requirement; the system stacks above are the shipped decision.
+   If the couple later wants a specific display face:
+     1. create `src/assets/fonts/` and drop one `woff2` in it;
+     2. add a single @font-face rule with `font-display: swap` and a
+        `src: url('./assets/fonts/<file>.woff2') format('woff2')` reference —
+        Vite fingerprints and emits the file automatically;
+     3. prepend that family name to `--font-display` in the @theme block above.
+   Nothing else changes: no component, no config, no index.html link or preload.
+   Budget note — this moves font bytes from zero to non-zero, so keep the file
+   subset and check it against the 12.3 bundle gate.
+   ========================================================================== */

@@ -1,0 +1,42 @@
+/* Gallery — colocated styles for the photo grid.
+   ==========================================================================
+   Only the pieces that do not belong in a Tailwind utility live here:
+     1. the fixed 3:2 aspect box that reserves layout space so lazy loading
+        (6.4) causes no cumulative layout shift, and
+     2. the optional onError fallback (design's error-handling table) that
+        paints a Cream-to-Light-Sage gradient in the reserved box while the
+        image's alt text stays available.
+
+   Palette comes from the @theme tokens declared in index.css — no raw hex
+   here (14.6). `var(--color-cream)` / `var(--color-sage-light)` resolve to the
+   same Palette values DressCode prints as data.
+
+   The grid columns themselves (1 / 2 / 3 across the breakpoints, 11.2 / 11.3)
+   are Tailwind responsive utilities in Gallery.jsx, not here. */
+
+/* The reserved box for each image. `aspect-ratio: 3 / 2` matches the intrinsic
+   1200 × 800 of every file, so the width/height attributes on the <img> stay
+   honest while the box itself stays fluid. `overflow: hidden` clips the
+   hover scale (6.6) to the box edge. */
+.gallery-figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  /* The fallback surface, revealed only if the <img> fails to paint. Sitting
+     on the figure rather than the <img> means a broken image never shows the
+     browser's default broken-image glyph — the gradient is already behind it. */
+  background-image: linear-gradient(
+    135deg,
+    var(--color-cream) 0%,
+    var(--color-sage-light) 100%
+  );
+}
+
+/* Applied by the onError handler in Gallery.jsx. The failed <img> is hidden so
+   the figure's gradient background shows through as an intentional placeholder;
+   the alt text remains on the (now hidden) element for assistive technology. */
+.gallery-img--error {
+  visibility: hidden;
+}
