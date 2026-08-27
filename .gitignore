@@ -33,3 +33,9 @@ coverage/
 Thumbs.db
 desktop.ini
 *:Zone.Identifier
+
+# local scratch helpers
+dev.sh
+push.sh
+p2.sh
+*.local.sh
