@@ -2,8 +2,8 @@
 //
 // Requirements: 8.4 (a message identifying the guest name field), 8.5 (the
 // attendance field), 8.6 (the guest count field, range 1-10 inclusive),
-// 8.2 / 8.7 (a URL-encoded body carrying `form-name`, which is what Netlify
-// routes the submission on).
+// 8.2 / 8.7 (a URL-encoded body carrying `form-name`, which is what the
+// `/api/rsvp` endpoint routes the submission on).
 //
 // Both exports are pure AND total. Neither reads the clock, the DOM, or module
 // state, and neither throws for any input — `validateRsvp(undefined)` and
@@ -41,7 +41,7 @@ export const RSVP_FIELD_ORDER = ['guestName', 'attendance', 'guestCount', 'messa
  * Validate RSVP form values.
  *
  * Returns a map keyed by field name — the same names the form controls and the
- * Netlify detection stub in `index.html` use — whose values are the messages to
+ * fallback stub in `index.html` use — whose values are the messages to
  * render. An empty object means the submission may proceed. The map shape does
  * double duty in the `Rsvp` component: the message renders inline beside the
  * offending control (which is how 8.4-8.6's "identifying the field" is
@@ -108,18 +108,18 @@ export function validateRsvp(values, limits = weddingConfig.rsvp) {
 }
 
 /**
- * Encode RSVP values as an `application/x-www-form-urlencoded` body for
- * Netlify Forms (8.7).
+ * Encode RSVP values as an `application/x-www-form-urlencoded` body for the
+ * `/api/rsvp` endpoint (8.7).
  *
- * `form-name` is set FIRST and always, because Netlify routes the submission to
- * a registered form on that field (8.2); a body without it is rejected however
+ * `form-name` is set FIRST and always, because the endpoint routes the
+ * submission on that field (8.2); a body without it is rejected however
  * well-formed the rest is. Its value must equal the `name` attribute of both
- * the live form and the detection stub in `index.html`, which is why it comes
+ * the live form and the fallback stub in `index.html`, which is why it comes
  * from `weddingConfig.rsvp.formName` rather than a literal.
  *
  * The remaining field names — `guestName`, `attendance`, `guestCount`,
- * `message` — match the stub in `index.html` exactly. Renaming one side alone
- * silently breaks form detection at deploy time.
+ * `message` — match the stub in `index.html` and the endpoint's allow-list
+ * exactly. Renaming one side alone silently breaks the submission.
  *
  * `URLSearchParams.toString()` does the whole of the escaping. Nothing here
  * calls `encodeURIComponent` on top of it: that would double-encode, so a `&`
@@ -139,7 +139,7 @@ export function encodeRsvpPayload(values, formName = weddingConfig.rsvp.formName
   const v = values ?? {}
 
   const params = new URLSearchParams()
-  params.set('form-name', String(formName ?? '')) // 8.2 / 8.7 — Netlify routes on this
+  params.set('form-name', String(formName ?? '')) // 8.2 / 8.7 — endpoint routes on this
   // Trimmed to match what validation accepted, so the couple reads the same
   // name the guest was told was valid rather than one padded with whitespace.
   params.set('guestName', String(v.guestName ?? '').trim())

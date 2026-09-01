@@ -410,7 +410,7 @@ describe('Property 5: RSVP payload encoding round-trips', () => {
     // The failure mode this guards: calling `encodeURIComponent` on a value and
     // then handing it to `URLSearchParams`, which escapes the `%` again. A `&`
     // arrives as `%2526` instead of `%26`, a space as `%2520` instead of `+`,
-    // and Netlify stores the mangled text.
+    // and the endpoint stores the mangled text.
     //
     // The test: `URLSearchParams` produces `%25` for exactly one input
     // character, a literal `%`. So when no field value contains a `%`, a `%25`

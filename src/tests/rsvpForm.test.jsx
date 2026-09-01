@@ -32,8 +32,9 @@ import { Rsvp } from '../components/Rsvp.jsx'
 const FORM_NAME = weddingConfig.rsvp.formName
 const { minGuests: MIN_GUESTS, maxGuests: MAX_GUESTS } = weddingConfig.rsvp
 
-// The four field names the live form, the pure encoder, and the index.html stub
-// must all agree on. Renaming one side alone breaks Netlify form detection.
+// The four field names the live form, the pure encoder, the index.html stub,
+// and the /api/rsvp endpoint must all agree on. Renaming one side alone breaks
+// the RSVP submission.
 const FIELD_NAMES = ['guestName', 'attendance', 'guestCount', 'message']
 
 // Resolved from this file so the read does not depend on where vitest was
@@ -131,15 +132,15 @@ describe('hidden form-name agrees with the form and the index.html stub', () => 
     expect(hidden.getAttribute('value')).toBe(FORM_NAME)
   })
 
-  it('matches the Netlify detection stub name in index.html', () => {
+  it('matches the fallback stub name in index.html', () => {
     // Parse index.html with the real DOM parser rather than a regex, then find
-    // the detection stub form and compare it field for field against the live
+    // the fallback stub form and compare it field for field against the live
     // form. This is what keeps the two from drifting (8.3).
     const html = readFileSync(INDEX_HTML, 'utf8')
     const doc = new DOMParser().parseFromString(html, 'text/html')
 
-    const stubForm = doc.querySelector('form[data-netlify="true"]')
-    expect(stubForm, 'index.html should carry the Netlify detection stub form').not.toBeNull()
+    const stubForm = doc.querySelector('form[name="rsvp"][action="/api/rsvp"]')
+    expect(stubForm, 'index.html should carry the RSVP fallback stub form').not.toBeNull()
 
     // The stub's form name and its hidden form-name value both equal the live
     // form's name.

@@ -4,10 +4,10 @@ A one-page wedding invitation website for **Bricx &amp; Mae**, celebrating their
 wedding on **February 13, 2027** in Pagsanjan, Laguna. It opens with a tap-to-open
 envelope, then reveals a hero, a live countdown, the ceremony and reception
 details with an add-to-calendar button, the couple's story, a photo gallery,
-venue map links, dress-code guidance, and an RSVP form. It is a fully static
-site built with Vite + React 19 + Tailwind v4 and is designed to deploy on
-**Netlify's free tier** — the RSVP form uses Netlify Forms, and nothing else
-needs a server. The site ships complete: every image, link, and line of copy is
+venue map links, dress-code guidance, and an RSVP form. It is built with
+Vite + React 19 + Tailwind v4 and is designed to deploy on **Vercel's free
+tier** — the static site plus one small serverless function that receives RSVP
+submissions. The site ships complete: every image, link, and line of copy is
 already in place, so it can go live as-is.
 
 ---
@@ -27,54 +27,72 @@ releases will fail to run the build.
 
 ---
 
-## Netlify deployment
+## Vercel deployment
 
-You only need a free Netlify account.
+You only need a free Vercel account.
 
-**Option A — connect the repository (recommended).**
+**Connect the repository (recommended).**
 
 1. Push this repository to GitHub, GitLab, or Bitbucket.
-2. In the Netlify dashboard, choose **Add new site → Import an existing project**
-   and pick the repository.
-3. Netlify reads the settings from `netlify.toml`, so the build command and
-   publish directory are filled in for you:
+2. In the Vercel dashboard, choose **Add New… → Project** and import the
+   repository.
+3. Vercel reads `vercel.json`, so the framework preset (Vite), build command,
+   and output directory are filled in for you:
+   - **Framework preset:** Vite
    - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-4. Deploy. Every push to the connected branch triggers a fresh build.
+   - **Output directory:** `dist`
+4. Deploy. Every push to the connected branch triggers a fresh build and a new
+   preview URL; the production branch publishes to your production domain.
 
-**Option B — drag and drop.**
+The `vercel.json` also adds an SPA rewrite so a deep link like `/#rsvp` (or any
+client route) serves `index.html`, while requests under `/api/*` reach the
+serverless function untouched.
 
-1. Run `npm run build` locally.
-2. Drag the generated `dist/` folder onto the Netlify **Sites** page.
+> **Node version.** Vercel builds and runs the function on Node 20+ by default,
+> which satisfies Vite 7. No extra configuration is needed.
 
-Drag-and-drop skips the connected-repo build, but the RSVP form still works
-because the form is already present in the built `dist/index.html` (see below).
+### The RSVP endpoint
+
+The RSVP form posts to a small Vercel Serverless Function at **`api/rsvp.js`**.
+It accepts the `application/x-www-form-urlencoded` body the form sends
+(`form-name`, `guestName`, `attendance`, `guestCount`, `message`), rejects any
+body whose `form-name` is not `rsvp`, does a server-side sanity check, and
+returns `200`. Vercel deploys anything under `api/` as a function automatically
+— there is nothing extra to configure.
 
 ### Retrieving RSVP submissions
 
-Guest RSVPs land in the Netlify dashboard, not in your inbox by default:
+Out of the box the function **logs** each reply. View them in:
 
-**Netlify dashboard → your site → Forms → the `rsvp` form → its submissions.**
+**Vercel dashboard → your project → the deployment → Logs (Functions).**
 
-You can also set up email or Slack notifications from that Forms page if you
-want a ping whenever someone replies.
+For a durable copy delivered somewhere you check (email, a spreadsheet, a
+database), open `api/rsvp.js` and add a delivery step where the file is marked
+`--- Delivery step ---`. The parsing and validation above it stay the same. A
+few free-friendly options:
 
-### How Netlify detects the form (do not delete the stub)
+- **Email** via a provider like Resend or your SMTP host (add the API key as a
+  Vercel Environment Variable, never commit it).
+- **Google Sheet** via a service-account append.
+- **Database** such as Vercel Postgres or any hosted store.
 
-Netlify Forms detection happens **at build time** by scanning the static
-`index.html` for a form marked `data-netlify="true"`. That is why `index.html`
-contains a hidden `rsvp` form stub with the field names (`guestName`,
-`attendance`, `guestCount`, `message`). The live React form posts to the same
-`rsvp` form name, but React renders on the client, so Netlify would never see it
-without the static stub. **Leave the hidden form in `index.html` in place** — if
-you remove it, Netlify stops recognising the form and submissions silently stop
-being captured.
+If a delivery step throws, the function returns a non-2xx and the form shows its
+retry path, so a guest is never told "thank you" for a reply that was lost.
 
-### Free tier form limit
+### Free tier notes
 
-Netlify's free tier allows **100 form submissions per month**. For a single
-wedding this is normally plenty, but if you expect more replies than that, check
-Netlify's current pricing for a higher tier.
+Vercel's Hobby (free) tier covers a single wedding invitation comfortably:
+static hosting is free, and the serverless function's invocation allowance is
+far more than a guest list will ever use. There is no per-month form-submission
+cap like Netlify Forms imposed.
+
+### No-JavaScript fallback
+
+`index.html` still contains a hidden `rsvp` form stub that posts to `/api/rsvp`.
+It is the fallback for a client whose JavaScript fails, and it pins the
+canonical field-name set the live form, the encoder, and the endpoint all agree
+on (a test enforces that agreement). **Leave the hidden form in `index.html` in
+place** — removing it drops the fallback and the drift guard.
 
 ---
 
@@ -161,7 +179,7 @@ inaccurate for screen-reader users.
 ## Manual verification checklist
 
 These are the claims the automated tests can't reach. Run them against a
-production preview (`npm run build` then `npm run preview`, or a Netlify deploy
+production preview (`npm run build` then `npm run preview`, or a Vercel deploy
 preview).
 
 - **Responsive width sweep** at **320 / 375 / 768 / 1024 / 1440 / 2560px**:
@@ -186,8 +204,14 @@ preview).
 - **Map links.** Both "View Ceremony Location" and "View Reception Location"
   open the correct venue in Google Maps in a new tab.
 - **Countdown.** The countdown ticks every second while the page sits idle.
-- **RSVP round-trip.** Submit a test RSVP and confirm it appears in the Netlify
-  Forms dashboard.
+- **RSVP round-trip.** Submit a test RSVP and confirm the success state appears,
+  then check the reply in the Vercel dashboard (project → deployment → Logs), or
+  wherever you wired the delivery step in `api/rsvp.js`.
+
+  Note: `npm run preview` serves only the static build, so `/api/rsvp` is not
+  available there and a submit will hit the error path. To exercise the function
+  locally, use `vercel dev` (from the Vercel CLI), or test it on a deploy
+  preview.
 
 ---
 
@@ -195,9 +219,11 @@ preview).
 
 ```
 wedding-invitation/
-├─ index.html                     # entry HTML + the hidden Netlify form stub (keep it)
-├─ netlify.toml                   # build command + publish dir for Netlify
+├─ index.html                     # entry HTML + the hidden RSVP fallback stub (keep it)
+├─ vercel.json                    # Vercel build config + SPA rewrite
 ├─ vite.config.js                 # Vite + React + Tailwind + Vitest config
+├─ api/
+│  └─ rsvp.js                     # Vercel serverless function — receives RSVP submissions
 ├─ scripts/
 │  └─ generate-placeholders.mjs   # generates the seven gallery WebPs
 └─ src/

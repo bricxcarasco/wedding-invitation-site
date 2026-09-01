@@ -1,12 +1,19 @@
-// Build-output guard for the Netlify form stub (requirement 8.3).
+// Build-output guard for the RSVP static fallback form (requirement 8.3).
 //
-// Requirement 8.3: the RSVP form must be registered with Netlify, whose form
-// detector parses the BUILT static HTML at deploy time and never runs
-// JavaScript. The live form is rendered by React, so a hidden stub in
-// index.html is what the detector actually sees. What matters is that this stub
-// SURVIVES Vite's HTML transform intact — Vite rewrites `<head>` (injecting the
-// bundled script/stylesheet tags) and could in principle strip or mangle body
-// markup, so the built copy is the one the requirement is really about.
+// Requirement 8.3 (as adapted for Vercel): the RSVP form must have a static,
+// no-JavaScript fallback present in the BUILT static HTML that posts to the
+// `/api/rsvp` serverless endpoint. The live form is rendered by React, so a
+// hidden stub in index.html is what a JS-less client (and any HTML-only tooling)
+// actually sees. What matters is that this stub SURVIVES Vite's HTML transform
+// intact — Vite rewrites `<head>` (injecting the bundled script/stylesheet tags)
+// and could in principle strip or mangle body markup, so the built copy is the
+// one the requirement is really about.
+//
+// (History: this site was originally on Netlify, where the same stub was parsed
+// by Netlify's build-time form detector. On Vercel there is no build-time form
+// detection, so the stub's job is now the no-JS fallback + the canonical
+// field-name set the whole RSVP path agrees on. The markup is nearly identical;
+// only `data-netlify` is gone and `action="/api/rsvp"` is asserted instead.)
 //
 // Strategy (documented on purpose):
 //   - The source `index.html` is ALWAYS asserted — it is the stub the author
@@ -48,15 +55,20 @@ function parse(html) {
  * identifies which copy (source vs built) is being checked, so a failure names
  * the file.
  */
-function assertNetlifyForm(doc, label) {
+function assertRsvpFallbackForm(doc, label) {
   const form = doc.querySelector('form[name="rsvp"]')
   expect(form, `${label}: no <form name="rsvp"> found`).not.toBeNull()
 
-  // Netlify opt-in.
+  // Posts to the Vercel serverless endpoint, so the no-JS fallback reaches the
+  // same handler the live React form calls.
   expect(
-    form.getAttribute('data-netlify'),
-    `${label}: form is missing data-netlify="true"`,
-  ).toBe('true')
+    form.getAttribute('method')?.toUpperCase(),
+    `${label}: form is missing method="POST"`,
+  ).toBe('POST')
+  expect(
+    form.getAttribute('action'),
+    `${label}: form is missing action="/api/rsvp"`,
+  ).toBe('/api/rsvp')
 
   // Kept out of rendering, the accessibility tree, and tab order.
   expect(form.hasAttribute('hidden'), `${label}: form is missing the hidden attribute`).toBe(true)
@@ -66,8 +78,8 @@ function assertNetlifyForm(doc, label) {
     `${label}: form is missing aria-hidden="true"`,
   ).toBe('true')
 
-  // The hidden form-name input Netlify uses to route the submission. Netlify
-  // requires its value to equal the form name.
+  // The hidden form-name input the endpoint routes on. Its value must equal the
+  // form name.
   const formNameInput = form.querySelector('input[name="form-name"]')
   expect(formNameInput, `${label}: no hidden input[name="form-name"]`).not.toBeNull()
   expect(
@@ -79,21 +91,21 @@ function assertNetlifyForm(doc, label) {
     `${label}: form-name input value must be "rsvp"`,
   ).toBe('rsvp')
 
-  // Every field name the live React form posts must be declared here, or
-  // Netlify rejects the submission for carrying an unregistered field.
+  // Every field name the live React form posts must be declared here, or the
+  // endpoint's allow-list drops it.
   for (const fieldName of EXPECTED_FIELD_NAMES) {
     const field = form.querySelector(`[name="${fieldName}"]`)
     expect(
       field,
-      `${label}: the "${fieldName}" field is missing from the Netlify stub`,
+      `${label}: the "${fieldName}" field is missing from the RSVP fallback stub`,
     ).not.toBeNull()
   }
 }
 
-describe('Netlify RSVP form stub (requirement 8.3)', () => {
+describe('RSVP static fallback form (requirement 8.3)', () => {
   it('is present and complete in source index.html', () => {
     const html = readFileSync(SOURCE_HTML, 'utf8')
-    assertNetlifyForm(parse(html), 'source index.html')
+    assertRsvpFallbackForm(parse(html), 'source index.html')
   })
 
   it('survives the Vite build in dist/index.html', () => {
@@ -111,7 +123,7 @@ describe('Netlify RSVP form stub (requirement 8.3)', () => {
     const html = readFileSync(BUILT_HTML, 'utf8')
     const doc = parse(html)
 
-    assertNetlifyForm(doc, 'dist/index.html')
+    assertRsvpFallbackForm(doc, 'dist/index.html')
 
     // The transform must have injected the bundled entry: proof the file is a
     // real Vite build output and not a stale hand-copy of the source.

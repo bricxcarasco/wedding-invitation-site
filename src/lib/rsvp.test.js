@@ -7,7 +7,7 @@
 // proves the if-and-only-if across generated inputs, and this file pins the
 // specific values a reader of the requirements would ask about — `'  '`, `2.5`,
 // `0`, `11`, `' attending'` — plus the two facts no generator can check, namely
-// that the encoded field names match the Netlify stub in `index.html` and that
+// that the encoded field names match the fallback stub in `index.html` and that
 // `form-name` carries the configured form name.
 //
 // It reads `index.html` from disk rather than asserting against a hardcoded
@@ -48,23 +48,25 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const INDEX_HTML = readFileSync(resolve(HERE, '..', '..', 'index.html'), 'utf8')
 
 /**
- * Field names on the Netlify detection stub in `index.html`, read out of the
+ * Field names on the RSVP static fallback stub in `index.html`, read out of the
  * actual markup.
  *
  * Parsed with jsdom's `DOMParser` — available because the suite runs in the
  * jsdom environment — rather than with a regex, so the assertion is about the
- * form the detector will parse rather than about text that happens to appear in
+ * form the browser will parse rather than about text that happens to appear in
  * the file. The stub carries `hidden`, `inert` and `aria-hidden`, none of which
  * affect parsing.
  */
 function stubFieldNames() {
   const doc = new DOMParser().parseFromString(INDEX_HTML, 'text/html')
-  const form = doc.querySelector('form[name][data-netlify="true"]')
+  const form = doc.querySelector('form[name="rsvp"][action="/api/rsvp"]')
   // Thrown rather than asserted: this runs at collection time, before any test
   // is executing, so a failed `expect` here would surface as a confusing
   // suite-level error instead of a readable message.
   if (!form) {
-    throw new Error('no form[name][data-netlify="true"] found in index.html (requirement 8.3)')
+    throw new Error(
+      'no form[name="rsvp"][action="/api/rsvp"] found in index.html (requirement 8.3)',
+    )
   }
 
   return {
@@ -134,7 +136,7 @@ describe('validateRsvp', () => {
       // These are wire values written by the radio inputs, not free text a
       // guest types, so an inexact match really is "unset" rather than a typo
       // worth forgiving. Trimming or case-folding here would let a hand-built
-      // POST through with a value Netlify would then store verbatim.
+      // POST through with a value the endpoint would then store verbatim.
       expect(validateRsvp(withField('attendance', attendance))).toHaveProperty('attendance')
     })
   })
@@ -297,9 +299,9 @@ describe('encodeRsvpPayload', () => {
   })
 
   it('puts form-name first in the body', () => {
-    // Not cosmetic: Netlify routes the submission on this field, and putting it
-    // first means a truncated body fails loudly rather than being filed under
-    // no form at all.
+    // Not cosmetic: the endpoint routes the submission on this field, and
+    // putting it first means a truncated body fails loudly rather than being
+    // filed under no form at all.
     expect(encodeRsvpPayload(VALID).startsWith('form-name=')).toBe(true)
   })
 
@@ -346,14 +348,14 @@ describe('encodeRsvpPayload', () => {
     expect(keys).toEqual(['form-name', ...PAYLOAD_FIELDS])
   })
 
-  describe('agreement with the Netlify detection stub in index.html (8.2, 8.3)', () => {
+  describe('agreement with the RSVP fallback stub in index.html (8.2, 8.3)', () => {
     const { formName, names } = stubFieldNames()
 
     it('encodes exactly the field names the stub declares', () => {
       // Both sides read from the files as they are. Renaming a field in
       // `rsvp.js` alone, or in `index.html` alone, fails here — which is the
       // failure that would otherwise show up as silently dropped RSVPs after a
-      // deploy, because Netlify rejects a POST whose form it cannot match.
+      // deploy, because the endpoint's allow-list drops fields it does not know.
       const encoded = [...new URLSearchParams(encodeRsvpPayload(VALID)).keys()].sort()
       expect(encoded).toEqual([...names].sort())
     })
@@ -365,7 +367,7 @@ describe('encodeRsvpPayload', () => {
 
     it("matches the stub's own hidden form-name value", () => {
       const doc = new DOMParser().parseFromString(INDEX_HTML, 'text/html')
-      const hidden = doc.querySelector('form[data-netlify="true"] input[name="form-name"]')
+      const hidden = doc.querySelector('form[name="rsvp"] input[name="form-name"]')
       expect(hidden, 'the stub has no hidden form-name input (8.2)').not.toBeNull()
       expect(hidden.getAttribute('value')).toBe(formName)
     })

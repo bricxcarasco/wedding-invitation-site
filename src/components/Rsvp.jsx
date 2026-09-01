@@ -1,10 +1,10 @@
-// The RSVP section: the live Netlify Forms submission, its validation, and its
-// success and error states.
+// The RSVP section: the live submission to the Vercel serverless endpoint, its
+// validation, and its success and error states.
 //
-// Requirements: 8.1 (the four fields with their required flags), 8.2 (the
-// `data-netlify` form with a hidden `form-name` matching the `name`), 8.4-8.6
-// (per-field validation messages that identify the field and withhold the
-// submission), 8.7 (a URL-encoded POST to `/`), 8.8 (the success confirmation
+// Requirements: 8.1 (the four fields with their required flags), 8.2 (the form
+// carries a hidden `form-name` matching the `name`), 8.4-8.6 (per-field
+// validation messages that identify the field and withhold the submission),
+// 8.7 (a URL-encoded POST to `/api/rsvp`), 8.8 (the success confirmation
 // in place of the fields), 8.9 (the failure path — error message, entered
 // values retained, submit still enabled), 8.10 (submit disabled while in
 // flight), 10.2 (the section is Reveal-wrapped), 11.4 (>=44px touch targets).
@@ -16,7 +16,8 @@
 // — so this component only decides how those results are rendered and which
 // control gets focus. Renaming a field here without renaming it there, or in
 // the `index.html` stub, breaks form detection at deploy time; the field names
-// below are chosen to match all three.
+// below are chosen to match all three: the live form here, the `index.html`
+// stub, and the `api/rsvp.js` endpoint.
 //
 // This component renders its OWN `<section id="rsvp">`. The orchestrator wires
 // it into `MainInvitation`'s slot list afterward, so nothing here imports or
@@ -126,9 +127,12 @@ export function Rsvp() {
     setStatus('submitting')
 
     try {
-      // 8.7 — Netlify's AJAX contract: POST to '/' with a URL-encoded body
-      // whose `form-name` matches the registered form.
-      const res = await fetch('/', {
+      // 8.7 — POST a URL-encoded body whose `form-name` matches the registered
+      // form to the RSVP endpoint. The endpoint is the Vercel serverless
+      // function at `api/rsvp.js`, which routes on `form-name` and records the
+      // reply. The body shape is unchanged from the previous Netlify Forms
+      // contract, so `encodeRsvpPayload` did not need to change.
+      const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: encodeRsvpPayload(values),
@@ -172,13 +176,13 @@ export function Rsvp() {
         noValidate
         name={weddingConfig.rsvp.formName}
         method="POST"
-        data-netlify="true"
+        action="/api/rsvp"
         aria-busy={submitting}
         onSubmit={handleSubmit}
         className="mt-8 flex flex-col gap-6 text-left"
       >
         {/* 8.2 — the hidden form-name whose value equals the `name` attribute
-            and matches the detection stub in index.html. Netlify routes on it. */}
+            and matches the stub in index.html. The endpoint routes on it. */}
         <input type="hidden" name="form-name" value={weddingConfig.rsvp.formName} />
 
         {/* guestName — required text (8.1) */}

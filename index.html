@@ -39,14 +39,16 @@
     <script type="module" src="/src/main.jsx"></script>
 
     <!--
-      NETLIFY FORM DETECTION STUB — DO NOT DELETE. This is not dead code.
+      RSVP STATIC FALLBACK FORM — DO NOT DELETE. This is not dead code.
 
-      Why it exists (requirement 8.3):
-        Netlify's form detector runs at deploy time against the built static
-        HTML and never executes JavaScript. The live RSVP form is rendered by
-        React, so the detector cannot see it, and a POST to an unregistered
-        form name is rejected. This stub is the copy the detector parses, which
-        is what registers the "rsvp" form on the site.
+      Why it exists:
+        The live RSVP form is rendered by React inside #root. This static copy
+        is a no-JavaScript fallback: it posts the same fields to the same
+        endpoint (`/api/rsvp`, the Vercel serverless function in api/rsvp.js),
+        so a guest whose JavaScript fails can still submit. It also pins the
+        canonical field-name set the whole RSVP path agrees on (a test asserts
+        the field names here match what the client encoder posts, so the live
+        form, this stub, and the endpoint cannot drift apart).
 
       Why it lives here and not inside #root:
         React's reconciler owns everything under #root. Anything placed there
@@ -62,10 +64,19 @@
         failure.
 
       Field names must stay in lockstep with the live form in src/components/
-      Rsvp.jsx (form-name, guestName, attendance, guestCount, message).
-      A test asserts that agreement, so do not rename one side alone.
+      Rsvp.jsx and the endpoint in api/rsvp.js (form-name, guestName,
+      attendance, guestCount, message). A test asserts that agreement, so do
+      not rename one side alone.
     -->
-    <form name="rsvp" data-netlify="true" hidden inert aria-hidden="true" style="display:none">
+    <form
+      name="rsvp"
+      method="POST"
+      action="/api/rsvp"
+      hidden
+      inert
+      aria-hidden="true"
+      style="display:none"
+    >
       <input type="hidden" name="form-name" value="rsvp" />
       <input type="text" name="guestName" tabindex="-1" />
       <input type="text" name="attendance" tabindex="-1" />

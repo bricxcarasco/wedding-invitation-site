@@ -13,7 +13,7 @@
 - **What it is**: A single-page wedding invitation website.
 - **Stack**: React + Vite. Styling via Tailwind (v4 `@theme` tokens in `src/index.css`).
 - **Tests**: Vitest + Testing Library. Run with `npm test -- --run` (single run, no watch).
-- **Deploy**: Netlify (`netlify.toml`). Build output goes to `dist/`.
+- **Deploy**: Vercel (`vercel.json`). Build output goes to `dist/`. RSVP is handled by a serverless function at `api/rsvp.js`. (Was Netlify + Netlify Forms originally; migrated 2026-09-01.)
 - **Repo**: `https://github.com/bricxcarasco/wedding-invitation-site.git` (remote `origin`, branch `main`).
 - **Location**: `/home/bricx/dev/wedding-invitation` (WSL) / `\\wsl.localhost\Ubuntu\home\bricx\dev\wedding-invitation` (Windows).
 
@@ -70,3 +70,29 @@
   - Rebuilt `InvitationEnvelope` opening animation: added `envelope--opening` class so flap/card keyframes fire (previously the flap never moved); slower, more graceful reveal (`OPEN_MS` raised to 3400ms). New envelope DOM structure (back/card/body/flap/seal) with hidden "You're Invited" title revealed on open.
   - `MainInvitation.jsx`: mounts `SiteConfetti`; even-section banding made translucent (`bg-cream-soft/80`) so decorative layers show through.
   - Updated tests: `envelopeGate`, `externalLinks`, `reducedMotion.property`.
+
+## Git Auth (this repo only)
+
+- **Push identity**: This repo pushes to GitHub as the **`bricxcarasco`** account (the repo owner). The machine's global git credential store holds a DIFFERENT account (`bizmatesph-bricx-carasco` / `bricx.carasco@bizmates.ph`) that gets a **403 Permission denied** on this repo — do NOT use it to push here.
+- **Scoping**: Auth is scoped to this repo via repo-local config (does not touch the global store):
+  - `credential.helper = store --file=.git/.bricxcarasco-credentials`
+  - `credential.https://github.com.username = bricxcarasco`
+  - The token lives in `.git/.bricxcarasco-credentials` (under `.git/`, so never tracked/committed).
+- **To push**: `wsl bash -c "cd /home/bricx/dev/wedding-invitation && git push origin main | cat"`.
+- **If the token is invalid/expired** (403 again): the user must supply a fresh `bricxcarasco` PAT with `repo` scope (or fine-grained `Contents: write` on `wedding-invitation-site`), then rewrite `.git/.bricxcarasco-credentials` as `https://bricxcarasco:<TOKEN>@github.com`.
+- **Security note**: A PAT was shared in plain chat once (2026-09-01); advised the user to rotate it. Prefer prompting or having the user write the file directly over pasting tokens in chat.
+
+## Task Log (continued)
+
+- **2026-09-01** Pushed commit `40ea634` to `origin/main` successfully as `bricxcarasco`. Local and remote `main` in sync. Configured the repo-local `bricxcarasco` credential described above.
+
+## Deployment (Vercel) — migrated from Netlify 2026-09-01
+
+- **`vercel.json`**: `framework: vite`, `buildCommand: npm run build`, `outputDirectory: dist`, plus an SPA rewrite `"/((?!api/).*)" -> "/index.html"` that leaves `/api/*` alone. (Do NOT add a `$schema` remote URL key — the fs_write tool blocks writing remote JSON schemas in Supervised mode.)
+- **RSVP backend**: Netlify Forms has no Vercel equivalent, so RSVP is now a Vercel Serverless Function at `api/rsvp.js`. It accepts the same `application/x-www-form-urlencoded` body (`form-name`, `guestName`, `attendance`, `guestCount`, `message`), routes on `form-name === 'rsvp'`, re-validates server-side (name non-empty, attendance in {attending,not-attending}, guestCount integer 1-10), then LOGS the submission and returns `200`. There is a marked `--- Delivery step ---` block to add email/Sheet/DB delivery later; a throw there returns 502 so the client shows its retry path.
+- **Client change**: `Rsvp.jsx` now `fetch('/api/rsvp', ...)` (was `fetch('/')`), form has `action="/api/rsvp"` and NO `data-netlify`. `encodeRsvpPayload` unchanged (body shape identical).
+- **`index.html` stub**: kept, but repurposed. It's now the no-JS fallback (`<form name="rsvp" method="POST" action="/api/rsvp" hidden inert aria-hidden>`), NOT a Netlify detection stub. It still pins the canonical field-name set that a test enforces across form/encoder/endpoint.
+- **Tests updated for the migration**: `src/tests/buildOutput.test.js` (asserts `method=POST` + `action=/api/rsvp` instead of `data-netlify`), `src/lib/rsvp.test.js` and `src/tests/rsvpForm.test.jsx` (selector `form[name="rsvp"][action="/api/rsvp"]`). All 324 tests pass on Node 24.
+- **`netlify.toml` removed** (`git rm`).
+- **IMPORTANT test gotcha**: `buildOutput.test.js` asserts the BUILT `dist/index.html` when it exists. After changing `index.html`, you MUST `npm run build` before `npm run test:run`, or the built-output check fails against a stale `dist/`. Sequence: edit → `npm run build` → `npm run test:run`.
+- **Local RSVP testing**: `npm run preview` serves only static build, so `/api/rsvp` 404s there — submit hits the error path. Use `vercel dev` or a deploy preview to exercise the function.
