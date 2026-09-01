@@ -39,6 +39,7 @@ import { Venue } from './Venue.jsx'
 import { DressCode } from './DressCode.jsx'
 import { Rsvp } from './Rsvp.jsx'
 import { Footer } from './Footer.jsx'
+import { AudioPlayer } from './AudioPlayer.jsx'
 
 /* --------------------------------------------------------------------------
    Section rhythm
@@ -137,6 +138,13 @@ export function MainInvitation() {
           content column (which is `z-10`), `aria-hidden`, click-through. The
           one-shot celebratory pop stays inside the hero (HeroConfetti). */}
       <SiteConfetti />
+
+      {/* Background music + its bottom-left mute/unmute control. Mounted here
+          (only after the envelope opens) so the opening click counts as the
+          user gesture that lets the unmuted track autoplay. Default: playing.
+          The fixed button sits on `z-20`, above the `z-10` content column, so
+          it is always reachable. Not part of the reading order. */}
+      <AudioPlayer />
 
       {/* `relative z-10` keeps the whole content column above the fixed
           decorative layer regardless of the stacking context ParallaxLayer

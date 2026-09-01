@@ -17,8 +17,11 @@ import weddingConfig, { CEREMONY_DATETIME, palette } from '../config/weddingConf
 
 const HEX_PATTERN = /^#[0-9a-f]{6}$/i
 
-/** Requirement 5.1's bound on the `story` narrative, inclusive at both ends. */
-const STORY_MIN_WORDS = 60
+// Requirement 5.1's bound on the `story` copy, inclusive at both ends. The
+// floor was lowered from 60 to accommodate a short scripture quotation (the
+// couple replaced the long first-person narrative with a Bible verse); the
+// ceiling stays at 200 so a longer narrative can still be dropped back in.
+const STORY_MIN_WORDS = 20
 const STORY_MAX_WORDS = 200
 
 /** Requirement 6.1's floor on the gallery, and the intrinsic size 6.4 needs. */

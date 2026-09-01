@@ -173,7 +173,7 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
             <span className="h-px w-10 bg-sage/30 sm:w-14" />
           </span>
           <span
-            className={`font-display text-base leading-none tracking-[0.4em] text-sage-deep uppercase${captionIdle}`}
+            className={`font-display-serif text-base leading-none tracking-[0.4em] text-sage-deep uppercase${captionIdle}`}
           >
             Tap to Open
           </span>

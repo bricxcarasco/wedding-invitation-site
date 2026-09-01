@@ -36,10 +36,56 @@
      elegant face common enough to be present on many machines and degrade
      through named fallbacks to a guaranteed generic, so the typography reads as
      intentional on every platform. */
-  --font-display: "Cormorant Garamond", Didot, "Playfair Display", Georgia,
+  /* Parisienne (Google Fonts) leads the display stack. It is SELF-HOSTED — the
+     woff2 is bundled by Vite (see the @font-face below) rather than linked from
+     Google's CDN — so it works on every device and browser with no external
+     request, no CDN dependency, and no flash of Google's servers being slow or
+     blocked. woff2 is supported by every browser since ~2016 (iOS Safari,
+     Android Chrome, Edge, Firefox, desktop Safari), and the serif/cursive
+     fallbacks below cover the vanishingly rare case where it cannot load. */
+  --font-display: "Parisienne", "Cormorant Garamond", Didot, "Playfair Display",
+    Georgia, "Times New Roman", cursive, serif;
+  /* The ORIGINAL elegant serif display stack, kept for the few spots that
+     should NOT use the Parisienne script: the hero date plate and the envelope
+     "Tap to Open" caption. Applied via the `font-display-serif` utility Tailwind
+     generates from this token. */
+  --font-display-serif: "Cormorant Garamond", Didot, "Playfair Display", Georgia,
     "Times New Roman", serif;
   --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", sans-serif;
+}
+
+/* ==========================================================================
+   Display webfont — Parisienne (self-hosted)
+
+   The one webfont the site ships. Bundled, not CDN-linked: the relative url()
+   is rewritten and fingerprinted by Vite at build time and emitted into
+   dist/assets, so the request is same-origin and there is no dependency on
+   Google's servers being reachable — which is what makes it work reliably on
+   every device (PC, mobile), OS (iOS, Android, Windows, macOS), and browser.
+
+   `font-display: swap` means text paints immediately in the fallback face and
+   swaps to Parisienne once the 14 KB file arrives, so nothing is ever invisible
+   while it loads. Latin subset only (the site's copy is Latin script).
+   ========================================================================== */
+@font-face {
+  font-family: "Parisienne";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  /* Served verbatim from `public/fonts/` at a STABLE, unhashed root URL.
+     woff2 first (every modern browser), TTF as a fallback for anything that
+     rejects woff2.
+
+     CRITICAL: this is the BASIC-LATIN subset (Unicode U+0000–00FF), which is
+     what holds A–Z / a–z / "&" — the glyphs the couple names and headings
+     actually use. The earlier 14 KB file was Google's *latin-EXT* subset by
+     mistake: a valid font with none of the basic-Latin letters, so the browser
+     loaded it and then fell back to Georgia for every character. That was the
+     bug behind "font not working". */
+  src:
+    url("/fonts/parisienne-v14-latin-400.woff2") format("woff2"),
+    url("/fonts/parisienne-v14-latin-400.ttf") format("truetype");
 }
 
 /* ==========================================================================

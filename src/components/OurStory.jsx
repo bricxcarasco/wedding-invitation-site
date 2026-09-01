@@ -36,12 +36,30 @@ import { Reveal } from './Reveal.jsx'
  * no raw hex anywhere (14.6).
  */
 export function OurStory() {
+  const { story, storyReference } = weddingConfig
+
   return (
     <Reveal as="section" id="our-story" className="mx-auto max-w-2xl text-center">
       <h2 className="font-display text-3xl text-sage md:text-4xl">Our Story</h2>
-      <p className="mt-8 text-lg leading-relaxed text-sage-deep md:text-xl">
-        {weddingConfig.story}
-      </p>
+
+      {/* When a reference is present the copy is scripture, so it is rendered as
+          a real <blockquote> with a <cite> attribution beneath it. With no
+          reference it falls back to a plain paragraph, so a longer first-person
+          narrative can be dropped back into `story` with no code change. */}
+      {storyReference ? (
+        <blockquote className="mt-8">
+          <p className="text-xl italic leading-relaxed text-sage-deep md:text-2xl">
+            &ldquo;{story}&rdquo;
+          </p>
+          <cite className="mt-6 block text-base not-italic tracking-wide text-sage md:text-lg">
+            &mdash; {storyReference}
+          </cite>
+        </blockquote>
+      ) : (
+        <p className="mt-8 text-lg leading-relaxed text-sage-deep md:text-xl">
+          {story}
+        </p>
+      )}
     </Reveal>
   )
 }

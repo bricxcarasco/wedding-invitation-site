@@ -7,6 +7,21 @@
     <!-- Favicon is a local inline-simple SVG in Palette colours. No external request. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    <!--
+      Preload the one self-hosted display webfont (Parisienne) so the browser
+      fetches it up front and the @font-face in index.css can swap it in as
+      early as possible. Served from /public at a stable, unhashed path, so this
+      absolute URL is valid in both dev and the production build. Same-origin,
+      so `crossorigin` is still required for font preloads to be reused.
+    -->
+    <link
+      rel="preload"
+      href="/fonts/parisienne-v14-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
     <title>Bricx &amp; Mae — Wedding Invitation</title>
 
     <!--

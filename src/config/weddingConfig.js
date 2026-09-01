@@ -101,28 +101,21 @@ const weddingConfig = {
   palette,
 
   /**
-   * 5.1 — 135 words, within the 60-200 bound the config test enforces. Written
-   * in the couple's collective first-person voice.
+   * 5.1 — the OurStory section copy. The couple chose to open with scripture
+   * rather than a first-person narrative, so `story` now holds a Bible verse
+   * and `storyReference` its attribution. OurStory renders the verse as a
+   * centred quotation with the reference as a cite line beneath it.
    *
-   * It deliberately invents no biographical detail: how Bricx and Mae met, how
-   * long they have been together, and who asked whom are all unknown here, and
-   * a fabricated history would be worse than none. So the copy stays with the
-   * shared present and the invitation itself — the choosing of the day, the
-   * gathering of the people, what they are walking into. If the couple later
-   * want their actual history in here, this is the one string to rewrite; keep
-   * the word count between 60 and 200 or the config test will say so.
+   * A verse is intentionally short — well under the long-form-prose bound the
+   * original narrative sat in — so the config test's word floor was lowered to
+   * match this shorter, quotation-style copy. To go back to a longer narrative,
+   * rewrite `story`, clear `storyReference` (or set it to an empty string), and
+   * the section renders the plain paragraph again with no cite line.
    */
   story:
-    'We chose this day the way we hope to choose everything from here: together, ' +
-    'and without hesitation. There is no part of it we want to keep to ourselves, ' +
-    'so we found a church in Pagsanjan, an afternoon warm enough to linger in, ' +
-    'and a stretch of green where the tables can stay set long past sunset. Then ' +
-    'we wrote down the names of everyone who has carried us this far, and that ' +
-    'list became this invitation. What waits for us is both ordinary and ' +
-    'enormous: plain mornings, small decisions, a lifetime of them. We would ' +
-    'rather step into all of it surrounded than step into it quietly. So come ' +
-    'early, stay late, and let the evening run long. Whatever we are becoming, ' +
-    'we would like you in the room for the beginning of it.',
+    'For I know the plans I have for you, declares the Lord, plans to prosper ' +
+    'you and not to harm you, plans to give you hope and a future.',
+  storyReference: 'Jeremiah 29:11',
 
   dressCode: {
     // 7.1 — semi-formal / garden-formal, phrased as an invitation rather than a

@@ -138,9 +138,11 @@ describe('gallery asset folder', () => {
 
 describe('image placement under src/assets/', () => {
   it('keeps every image file inside src/assets/gallery/', () => {
-    // Requirement 6.2 again, from the other direction. Note there is no
-    // `src/assets/fonts/` — the site ships no webfont — so this walks whatever
-    // is actually there rather than assuming a layout.
+    // Requirement 6.2 again, from the other direction. The site ships one
+    // self-hosted display webfont (Parisienne), but it lives in `public/fonts/`
+    // (served verbatim), not under `src/assets/`, so this walk of `src/assets/`
+    // still sees images only. Filtering to IMAGE extensions keeps it robust
+    // regardless.
     const strays = walk(ASSETS_DIR)
       .filter((file) => IMAGE_EXTENSIONS.has(extname(file).toLowerCase()))
       .filter((file) => dirname(file) !== GALLERY_DIR)

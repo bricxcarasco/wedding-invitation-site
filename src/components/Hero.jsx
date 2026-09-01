@@ -69,7 +69,7 @@ export function Hero() {
           larger than any other hero text element, but below the names. Set in
           the display face with wide tracking so it reads as a date plate. */}
       <Reveal delay={3}>
-        <p className="mt-10 font-display text-3xl font-normal uppercase tracking-[0.2em] text-sage-deep sm:text-4xl md:text-5xl">
+        <p className="mt-10 font-display-serif text-3xl font-normal uppercase tracking-[0.2em] text-sage-deep sm:text-4xl md:text-5xl">
           {schedule.displayDate}
         </p>
       </Reveal>
