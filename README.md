@@ -56,28 +56,87 @@ serverless function untouched.
 The RSVP form posts to a small Vercel Serverless Function at **`api/rsvp.js`**.
 It accepts the `application/x-www-form-urlencoded` body the form sends
 (`form-name`, `guestName`, `attendance`, `guestCount`, `message`), rejects any
-body whose `form-name` is not `rsvp`, does a server-side sanity check, and
-returns `200`. Vercel deploys anything under `api/` as a function automatically
-— there is nothing extra to configure.
+body whose `form-name` is not `rsvp`, does a server-side sanity check, appends
+the reply to a **Google Sheet**, and returns `200`. Vercel deploys anything
+under `api/` as a function automatically — there is nothing extra to configure.
 
-### Retrieving RSVP submissions
+If a guest's JavaScript fails and the sheet append fails, the function returns a
+non-2xx and the form shows its retry path, so a guest is never told "thank you"
+for a reply that was lost.
 
-Out of the box the function **logs** each reply. View them in:
+### Retrieving RSVP submissions (Google Sheet)
 
-**Vercel dashboard → your project → the deployment → Logs (Functions).**
+RSVPs are appended as rows to a Google Sheet you own. The sheet is fronted by a
+tiny **Google Apps Script Web App**; the function POSTs each reply to that web
+app's URL, and the script writes the row. This needs no npm dependency and no
+service-account key — just a URL kept in an environment variable.
 
-For a durable copy delivered somewhere you check (email, a spreadsheet, a
-database), open `api/rsvp.js` and add a delivery step where the file is marked
-`--- Delivery step ---`. The parsing and validation above it stay the same. A
-few free-friendly options:
+**One-time setup:**
 
-- **Email** via a provider like Resend or your SMTP host (add the API key as a
-  Vercel Environment Variable, never commit it).
-- **Google Sheet** via a service-account append.
-- **Database** such as Vercel Postgres or any hosted store.
+1. Create a Google Sheet (any Google account, free). Note it will hold the
+   columns: `timestamp`, `guestName`, `attendance`, `guestCount`, `message`.
+2. In the sheet, open **Extensions → Apps Script** and replace the contents of
+   `Code.gs` with:
 
-If a delivery step throws, the function returns a non-2xx and the form shows its
-retry path, so a guest is never told "thank you" for a reply that was lost.
+   ```javascript
+   // Apps Script Web App backing the wedding RSVP sheet.
+   // Appends one row per RSVP. Creates the header row on first write.
+   function doPost(e) {
+     var lock = LockService.getScriptLock()
+     lock.waitLock(30000) // serialise concurrent writes so rows never interleave
+     try {
+       var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]
+       var data = JSON.parse(e.postData.contents)
+
+       // Write a header row once, if the sheet is empty.
+       if (sheet.getLastRow() === 0) {
+         sheet.appendRow(['timestamp', 'guestName', 'attendance', 'guestCount', 'message'])
+       }
+
+       sheet.appendRow([
+         data.timestamp || new Date().toISOString(),
+         data.guestName || '',
+         data.attendance || '',
+         data.guestCount || '',
+         data.message || '',
+       ])
+
+       return ContentService
+         .createTextOutput(JSON.stringify({ ok: true }))
+         .setMimeType(ContentService.MimeType.JSON)
+     } catch (err) {
+       return ContentService
+         .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+         .setMimeType(ContentService.MimeType.JSON)
+     } finally {
+       lock.releaseLock()
+     }
+   }
+   ```
+
+3. Click **Deploy → New deployment → Web app**. Set **Execute as: Me** and
+   **Who has access: Anyone**, then deploy and authorise it. (The endpoint only
+   ever appends rows; it never reads or returns your data.)
+4. Copy the **Web app URL** it gives you (it looks like
+   `https://script.google.com/macros/s/……/exec`).
+5. In Vercel, go to **Project → Settings → Environment Variables** and add:
+   - **Name:** `RSVP_SHEETS_WEBHOOK_URL`
+   - **Value:** the Web app URL from step 4
+   Add it for the environments you deploy (Production, and Preview if you want
+   previews to write too). Redeploy so the variable takes effect.
+
+That's it. New RSVPs now land as rows in your sheet.
+
+**Before you set the variable:** the function falls back to logging each reply
+to the Vercel function logs (**Vercel dashboard → your project → the deployment
+→ Logs**) and still returns `200`, so the site works end to end even before the
+sheet is wired up. Once `RSVP_SHEETS_WEBHOOK_URL` is set, replies go to the
+sheet instead — no code change needed.
+
+**Changing the deployment (later):** each time you edit the Apps Script you must
+**Deploy → Manage deployments → edit → deploy a new version** for the change to
+take effect. A fresh "New deployment" gives a *new* URL, so update the Vercel
+variable if you do that.
 
 ### Free tier notes
 

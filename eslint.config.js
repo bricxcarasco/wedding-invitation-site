@@ -46,4 +46,16 @@ export default [
       },
     },
   },
+
+  // Vercel Serverless Functions under `api/` run in the Node runtime, so they
+  // need Node globals (`process`, etc.) rather than the browser set the app
+  // sources use.
+  {
+    files: ['api/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ]

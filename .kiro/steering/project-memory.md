@@ -60,7 +60,8 @@
 - **Autonomy**: Prefers Autopilot; dislikes approval prompts. Prefer dedicated tools (read_file, grep_search, file_search, list_directory) over terminal commands where possible.
 - **If `execute_pwsh` gives trouble, don't get blocked** — find an alternative approach and keep going.
 - **Commit messages**: descriptive titles.
-- **Git**: push to GitHub `origin/main` for this project when asked (user explicitly requested pushing to main here).
+- **Git push policy**: NEVER push to GitHub automatically. Always wait for the user's explicit go-signal before pushing. Committing locally is fine, but `git push` only on request. (Set 2026-09-01.)
+- **Git**: pushes go to `origin/main` as the `bricxcarasco` account (see Git Auth section).
 
 ## Task Log
 
@@ -89,7 +90,9 @@
 ## Deployment (Vercel) — migrated from Netlify 2026-09-01
 
 - **`vercel.json`**: `framework: vite`, `buildCommand: npm run build`, `outputDirectory: dist`, plus an SPA rewrite `"/((?!api/).*)" -> "/index.html"` that leaves `/api/*` alone. (Do NOT add a `$schema` remote URL key — the fs_write tool blocks writing remote JSON schemas in Supervised mode.)
-- **RSVP backend**: Netlify Forms has no Vercel equivalent, so RSVP is now a Vercel Serverless Function at `api/rsvp.js`. It accepts the same `application/x-www-form-urlencoded` body (`form-name`, `guestName`, `attendance`, `guestCount`, `message`), routes on `form-name === 'rsvp'`, re-validates server-side (name non-empty, attendance in {attending,not-attending}, guestCount integer 1-10), then LOGS the submission and returns `200`. There is a marked `--- Delivery step ---` block to add email/Sheet/DB delivery later; a throw there returns 502 so the client shows its retry path.
+- **RSVP backend**: Netlify Forms has no Vercel equivalent, so RSVP is now a Vercel Serverless Function at `api/rsvp.js`. It accepts the same `application/x-www-form-urlencoded` body (`form-name`, `guestName`, `attendance`, `guestCount`, `message`), routes on `form-name === 'rsvp'`, re-validates server-side (name non-empty, attendance in {attending,not-attending}, guestCount integer 1-10), then appends the reply to a **Google Sheet** and returns `200`. A failed append returns 502 so the client shows its retry path.
+- **Google Sheet delivery (chosen 2026-09-01)**: via a Google Apps Script Web App (NOT a service account — no npm dep, no key file). `api/rsvp.js` POSTs the row as JSON (`timestamp, guestName, attendance, guestCount, message`) to the web app URL held in the `RSVP_SHEETS_WEBHOOK_URL` **Vercel env var** (10s timeout, AbortController). If that env var is UNSET, it falls back to `console.warn`-logging the reply and still returns 200, so the site is deployable before the sheet is wired up. The exact Apps Script to paste + full setup steps are in the README "Retrieving RSVP submissions (Google Sheet)" section. Sheet column order must match the `row` object field order in `api/rsvp.js`.
+- **ESLint**: `eslint.config.js` has a dedicated block for `api/**/*.{js,mjs}` giving it Node globals (`process`, etc.) — the app sources only get browser globals, so serverless functions would otherwise fail `no-undef` on `process`.
 - **Client change**: `Rsvp.jsx` now `fetch('/api/rsvp', ...)` (was `fetch('/')`), form has `action="/api/rsvp"` and NO `data-netlify`. `encodeRsvpPayload` unchanged (body shape identical).
 - **`index.html` stub**: kept, but repurposed. It's now the no-JS fallback (`<form name="rsvp" method="POST" action="/api/rsvp" hidden inert aria-hidden>`), NOT a Netlify detection stub. It still pins the canonical field-name set that a test enforces across form/encoder/endpoint.
 - **Tests updated for the migration**: `src/tests/buildOutput.test.js` (asserts `method=POST` + `action=/api/rsvp` instead of `data-netlify`), `src/lib/rsvp.test.js` and `src/tests/rsvpForm.test.jsx` (selector `form[name="rsvp"][action="/api/rsvp"]`). All 324 tests pass on Node 24.
