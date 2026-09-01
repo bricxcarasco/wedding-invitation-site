@@ -1,9 +1,9 @@
 /* ==========================================================================
-   HeroConfetti — component-scoped falling-confetti artwork and drift animation
+   HeroConfetti — component-scoped confetti artwork and animation
    --------------------------------------------------------------------------
-   A gentle, romantic drift of leaves, stars, hearts, and glitter behind the
-   hero copy. Atmosphere, not decoration-with-weight: subtle opacities, soft
-   Sage/Cream tones, slow fall.
+   Two layers: a one-shot BURST that pops the moment the site is revealed, and
+   the gentle continuous DRIFT that carries on afterwards. A romantic mix of
+   leaves, stars, hearts and glitter in soft Sage/Cream tones.
 
    WHY THIS FILE EXISTS. `src/index.css` is shared and must not be modified, so
    everything only the confetti needs lives here, colocated with the component
@@ -14,19 +14,21 @@
    here (14.6). Plain `white` is not a Palette value, so it is used freely as a
    tint — the same allowance the envelope takes.
 
-   ANIMATED PROPERTIES. `transform` and `opacity`, and nothing else, in the one
-   keyframe below (12.4) — compositor-only. No width, height, top, left,
+   ANIMATED PROPERTIES. `transform` and `opacity`, and nothing else, in both
+   keyframes below (12.4) — compositor-only. No width, height, top, left,
    box-shadow, filter, or background is ever transitioned or keyframed; the
    static `box-shadow`/`filter` declarations paint once and never change.
 
    REDUCED MOTION. The component returns `null` under reduce, so nothing is
    rendered. The media block at the foot of this file is a safety net for the
-   case where the layer is ever mounted anyway.
+   case where either layer is ever mounted anyway.
    ========================================================================== */
 
-/* --- The layer ----------------------------------------------------------- */
-/* Fills the hero section, clips to it (the section carries overflow-hidden),
-   sits BEHIND the hero text on a low z-index, and never intercepts a click. */
+/* --- The layers ---------------------------------------------------------- */
+
+/* HERO BURST layer. Fills the hero section, clips to it (the section carries
+   overflow-hidden), sits BEHIND the hero text on a low z-index, never
+   intercepts a click. Only the one-shot burst uses this now. */
 .hero-confetti {
   position: absolute;
   inset: 0;
@@ -35,27 +37,50 @@
   pointer-events: none;
 }
 
-/* --- A confetti piece ---------------------------------------------------- */
-/* Position, size, delay, and duration all arrive inline from the PIECES table;
-   this rule supplies only what every piece shares: the drift loop and a will-
-   change hint so the compositor promotes each piece to its own layer. `--drift`
-   defaults to 0 so a piece with no inline value simply falls straight. */
+/* SITE DRIFT layer. `position: fixed` so it is pinned to the viewport and stays
+   put as the page scrolls — the continuous confetti is therefore visible over
+   EVERY section, top to bottom, not clipped to the hero. Behind all content on
+   z-index 0 (the invitation content column sits on z-index 10), and never
+   intercepts a click. */
+.site-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- A confetti piece (shared setup) ------------------------------------- */
+/* Position, size, delay, and duration all arrive inline; this rule supplies
+   only what every piece shares. `--drift` defaults to 0 so a drift piece with
+   no inline value simply falls straight. */
 .confetti {
   position: absolute;
   display: block;
   --drift: 0px;
   opacity: 0;
   will-change: transform, opacity;
-  animation-name: confetti-fall;
   animation-timing-function: linear;
+}
+
+/* ==========================================================================
+   DRIFT — the continuous, site-wide atmosphere
+   ========================================================================== */
+
+/* Loops forever. Pieces live in the fixed `.site-confetti` layer, so the fall
+   is measured against the viewport and repeats across the whole page. The
+   component adds a lead-in to each piece's inline delay so the drift eases in
+   as the hero burst settles rather than competing with it. */
+.site-confetti .confetti {
+  animation-name: confetti-fall;
   animation-iteration-count: infinite;
 }
 
-/* The fall. translateY carries a piece from above the section to well below it
-   (110vh is comfortably past the hero on any viewport); the `--drift` sway and
+/* The fall. translateY carries a piece from above the viewport to well below it
+   (110vh is comfortably past the bottom on any screen); the `--drift` sway and
    a slow rotate add life; opacity fades in near the top and out near the
    bottom so pieces never pop in or clip out. Kept subtle — the peak opacity is
-   well under 1 so the field reads as atmosphere behind readable text. */
+   well under 1 so the field reads as atmosphere behind readable content. */
 @keyframes confetti-fall {
   0% {
     transform: translate3d(0, 0, 0) rotate(0deg);
@@ -76,6 +101,69 @@
     opacity: 0;
   }
 }
+
+/* ==========================================================================
+   BURST — the one-shot pop / boom on reveal
+   ========================================================================== */
+
+/* Plays exactly once and holds its final (invisible) frame, so the burst
+   erupts, scatters, and is gone — leaving the drift to carry on. `--bx`/`--by`
+   are the launch vector (computed per piece in the component), `--spin` the end
+   rotation; all default to a no-op so a missing value is harmless. The ease is
+   explosive out of the gate and eases as the pieces reach their apex. */
+.confetti--burst-piece {
+  --bx: 0px;
+  --by: 0px;
+  --spin: 0deg;
+  animation-name: confetti-burst;
+  animation-timing-function: cubic-bezier(0.16, 0.84, 0.3, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+/* The pop. Starts collapsed at the origin, snaps open with a slight overshoot
+   for the "boom", flies out along the launch vector while spinning, rises to an
+   apex (~78% of the way out and highest), then drifts a little past and fades.
+   Opacity is driven entirely here, so the shape classes' base opacity does not
+   fight it, and fill-mode:forwards keeps every piece at opacity 0 afterwards. */
+@keyframes confetti-burst {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+    opacity: 0;
+  }
+  14% {
+    transform: translate3d(
+        calc(var(--bx) * 0.22),
+        calc(var(--by) * 0.22),
+        0
+      )
+      scale(1.12) rotate(calc(var(--spin) * 0.2));
+    opacity: 0.95;
+  }
+  70% {
+    transform: translate3d(
+        calc(var(--bx) * 0.92),
+        calc(var(--by) * 1),
+        0
+      )
+      scale(1) rotate(calc(var(--spin) * 0.85));
+    opacity: 0.9;
+  }
+  100% {
+    /* Settles a touch below the apex as gravity wins, and fades out. */
+    transform: translate3d(
+        var(--bx),
+        calc(var(--by) + 40px),
+        0
+      )
+      scale(0.9) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Shapes — shared by both layers
+   ========================================================================== */
 
 /* --- Leaf / petal -------------------------------------------------------- */
 /* The classic leaf silhouette: opposite corners rounded. Filled with a
@@ -131,10 +219,11 @@
 }
 
 /* --- Reduced-motion safety net ------------------------------------------- */
-/* Belt-and-braces: the component already returns null under reduce, but if the
-   layer is ever mounted regardless, this collapses it entirely. */
+/* Belt-and-braces: both components already return null under reduce, but if
+   either layer is ever mounted regardless, this collapses it entirely. */
 @media (prefers-reduced-motion: reduce) {
-  .hero-confetti {
+  .hero-confetti,
+  .site-confetti {
     display: none;
   }
 }

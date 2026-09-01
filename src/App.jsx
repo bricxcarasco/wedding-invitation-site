@@ -23,8 +23,12 @@ import { useReducedMotion } from './hooks/useReducedMotion.js'
 import InvitationEnvelope from './components/InvitationEnvelope.jsx'
 import { MainInvitation } from './components/MainInvitation.jsx'
 
-// Full opening animation. Inside the 1200–2500ms band of requirement 1.5.
-const OPEN_MS = 1600
+// Full opening animation. A slow, smooth three-beat "letter slides out" score
+// in InvitationEnvelope.css: flap opens gently, letter rises clear of the
+// pocket, then the scene fades. The envelope CSS is timed to finish just under
+// this. (Above the 1200–2500ms band req 1.5 names as the minimum-acceptable
+// range, deliberately, for a more graceful reveal.)
+const OPEN_MS = 3400
 
 // Reduced-motion cross-fade. Inside the ≤300ms band of requirement 1.8, and the
 // motion-off policy of 10.6.

@@ -28,6 +28,7 @@
 import { useEffect, useRef } from 'react'
 
 import { ParallaxLayer } from './ParallaxLayer.jsx'
+import { SiteConfetti } from './SiteConfetti.jsx'
 import { HeroConfetti } from './HeroConfetti.jsx'
 import { Hero } from './Hero.jsx'
 import { Countdown } from './Countdown.jsx'
@@ -47,11 +48,16 @@ import { Footer } from './Footer.jsx'
    `<section>`; the vertical spacing and the banding follow automatically and
    cannot drift section to section.
 
-   Banding alternates transparent / Cream-soft rather than Cream / Cream-soft.
-   `body` already paints Cream, so an "odd" section needs no background of its
-   own — and leaving it transparent is what lets the fixed ParallaxLayer show
-   through (10.3). Painting every section opaque would satisfy the banding and
-   silently hide the parallax effect behind it.
+   Banding alternates transparent / translucent-Cream-soft rather than
+   Cream / Cream-soft. `body` already paints Cream, so an "odd" section needs no
+   background of its own — and leaving it transparent is what lets the fixed
+   ParallaxLayer and the fixed SiteConfetti show through (10.3).
+
+   The even-section band is deliberately TRANSLUCENT (`/80`), not opaque: an
+   opaque band would paint over the fixed confetti layer behind the content
+   column and hide the drift on those sections. At 80% Cream-soft the banding
+   still reads as a distinct surface while the confetti keeps drifting through
+   it, so the atmosphere is continuous top to bottom.
 
    Tokens only, no raw hex (14.6): `bg-cream-soft` resolves to the
    `--color-cream-soft` token declared in the `@theme` block of `index.css`.
@@ -61,7 +67,7 @@ const SECTION_RHYTHM = [
   '[&>section]:py-20',
   'md:[&>section]:px-8',
   'md:[&>section]:py-28',
-  '[&>section:nth-of-type(even)]:bg-cream-soft',
+  '[&>section:nth-of-type(even)]:bg-cream-soft/80',
 ].join(' ')
 
 /**
@@ -125,6 +131,12 @@ export function MainInvitation() {
           global media block in index.css and by `useParallax` attaching no
           listener at all (10.6). */}
       <ParallaxLayer />
+
+      {/* Site-wide falling confetti — a single fixed, full-viewport layer that
+          stays visible over every section as the guest scrolls. Behind the
+          content column (which is `z-10`), `aria-hidden`, click-through. The
+          one-shot celebratory pop stays inside the hero (HeroConfetti). */}
+      <SiteConfetti />
 
       {/* `relative z-10` keeps the whole content column above the fixed
           decorative layer regardless of the stacking context ParallaxLayer

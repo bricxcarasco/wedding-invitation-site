@@ -115,188 +115,177 @@
   cursor: default;
 }
 
-/* --- Envelope geometry -------------------------------------------------- */
+/* --- Envelope geometry --------------------------------------------------
+   A deliberately SIMPLE, reliable flat-envelope build (no preserve-3d chain,
+   no backface faces, no clip-path-on-a-3D-wrapper). Layers, back to front:
+
+     z 1  .envelope__back   the back wall (letter tucks against it)
+     z 2  .envelope__card   the letter, hidden behind the body/flap when closed
+     z 3  .envelope__body   the front pocket (covers the card's lower half)
+     z 4  .envelope__flap   a downward triangle hinged at its top edge
+     z 5  .envelope__seal   the wax seal on the flap
+
+   The ONLY 3D is a single `perspective` on the frame plus `rotateX` on the
+   flap — the well-known, dependable envelope-open technique. On open the flap
+   rotates back and drops to z 0 (behind the card), the card slides up out of
+   the pocket in front of the body, then the whole scene fades.
+   -------------------------------------------------------------------------- */
 
 .envelope-stage {
-  /* Gives the flap lift real depth. Static, so it costs nothing per frame. */
-  perspective: 1400px;
+  display: block;
 }
 
 .envelope {
   position: relative;
   inline-size: clamp(272px, 76vw, 448px);
-  /* Close to a landscape A7 invitation envelope. */
+  /* Landscape A7 invitation proportions. */
   aspect-ratio: 7 / 5;
-  transform-style: preserve-3d;
+  /* Perspective lives on the frame so the flap's rotateX reads as depth.
+     No transform-style: preserve-3d — every child is a plain 2D layer, which
+     is exactly why this build is robust. */
+  perspective: 1100px;
+  filter: drop-shadow(
+    0 26px 40px color-mix(in srgb, var(--color-sage-deep) 34%, transparent)
+  );
 }
 
-/* The paper body: a warm Cream sheet, a hairline Silver edge, a bright top
-   highlight, and two stacked shadows — one tight for contact, one wide and soft
-   for the lift off the page. Reads as heavy letterpress stock. */
-.envelope__base {
+/* Back wall — the full sheet the letter rests against. Lowest layer. */
+.envelope__back {
   position: absolute;
   inset: 0;
-  border-radius: 3px;
+  z-index: 1;
+  border-radius: 4px;
   background-image: linear-gradient(
     152deg,
-    color-mix(in srgb, var(--color-cream-soft) 90%, white) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 92%, white) 0%,
     var(--color-cream) 100%
   );
-  border: 1px solid color-mix(in srgb, var(--color-silver) 58%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.75),
-    0 16px 34px -16px color-mix(in srgb, var(--color-sage-deep) 42%, transparent),
-    0 44px 84px -42px color-mix(in srgb, var(--color-sage-deep) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-silver) 55%, transparent);
 }
 
-/* The card inside. It needs no `opacity: 0` to stay secret while the gate is
-   closed: it sits at z-index 1 and the opaque folds at z-index 2 cover the
-   whole sheet, so it is genuinely behind the paper rather than merely faded
-   out. When the flap lifts it is revealed in place, then rises. */
+/* The letter. Fully hidden inside the sealed envelope at rest: it sits at z 2,
+   BEHIND both the body (z 3) and the flap (z 4), and is nudged DOWN into the
+   pocket (`translateY`) so not even its top corners peek past the triangular
+   flap while the envelope is closed. The slide keyframe lifts it up and out on
+   open. */
 .envelope__card {
   position: absolute;
-  inset: 7% 8% 9%;
-  z-index: 1;
+  inset: 8% 8% 20%;
+  z-index: 2;
+  /* Resting position: tucked down inside the pocket, sealed. The open sequence
+     overrides this via `envelope-card-slide`. */
+  transform: translate3d(0, 14%, 0);
   border-radius: 2px;
   background-image: linear-gradient(
     180deg,
-    color-mix(in srgb, white 92%, var(--color-cream-soft)) 0%,
-    color-mix(in srgb, var(--color-cream-soft) 90%, white) 100%
+    color-mix(in srgb, white 96%, var(--color-cream-soft)) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 94%, white) 100%
   );
-  border: 1px solid color-mix(in srgb, var(--color-silver) 42%, transparent);
-  box-shadow: 0 10px 24px -14px
-    color-mix(in srgb, var(--color-sage-deep) 38%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-silver) 40%, transparent);
+  box-shadow: 0 8px 20px -12px
+    color-mix(in srgb, var(--color-sage-deep) 36%, transparent);
 }
 
-/* Two Sage hairlines stand in for print. Requirement 1.4 forbids any wedding
-   data on the gate, so the card carries rules rather than words — it reads as a
-   printed card without printing a name, a date, or a venue. */
+/* "You're Invited" — the only text on the card, and it must NOT be visible
+   until the envelope is opened (it is hidden at rest and revealed by the
+   opening sequence below). Set in the display face, Sage ink, centred. It is
+   `aria-hidden` decoration on the gate: it is a teaser, not the invitation, and
+   1.4 keeps real wedding data off the gate entirely. */
+.envelope__card-title {
+  position: absolute;
+  inset-inline: 8%;
+  inset-block-start: 26%;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 4.4vw, 1.9rem);
+  letter-spacing: 0.06em;
+  color: var(--color-sage);
+  opacity: 0;
+}
+
+/* Two Sage hairlines under the title stand in for print — no wedding data on
+   the gate (1.4). Also hidden until open, so the closed card is blank. */
 .envelope__card::before,
 .envelope__card::after {
   content: "";
   position: absolute;
-  block-size: 1px;
+  block-size: 2px;
+  border-radius: 2px;
+  opacity: 0;
 }
 
 .envelope__card::before {
-  inset-inline: 24%;
-  inset-block-start: 33%;
+  inset-inline: 22%;
+  inset-block-start: 52%;
   background-color: color-mix(in srgb, var(--color-sage-light) 72%, transparent);
 }
 
 .envelope__card::after {
-  inset-inline: 33%;
-  inset-block-start: 42%;
-  background-color: color-mix(in srgb, var(--color-sage-light) 44%, transparent);
+  inset-inline: 22%;
+  inset-block-start: 64%;
+  background-color: color-mix(in srgb, var(--color-sage-light) 46%, transparent);
 }
 
-/* --- The folds ---------------------------------------------------------- */
-
-.envelope__fold {
+/* Front pocket / body. A single element clipped to the "envelope front"
+   silhouette: the two lower diagonals meeting in a V at the top-centre. It
+   covers the card's lower half and always stays put. */
+.envelope__body {
   position: absolute;
-  z-index: 2;
-}
-
-/* Side wings, each a triangle whose apex meets the middle of the sheet. The
-   90deg gradients make the two folds catch light from opposite sides, which is
-   what makes the paper look folded rather than drawn. */
-.envelope__fold--left {
-  inset: 0 50% 0 0;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  inset: 0;
+  z-index: 3;
+  border-radius: 4px;
+  /* Top edge dips to the centre (the classic front V), sides and bottom full. */
+  clip-path: polygon(0 34%, 50% 72%, 100% 34%, 100% 100%, 0 100%);
   background-image: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--color-cream) 94%, var(--color-sage-light)) 0%,
-    var(--color-cream-soft) 100%
+    158deg,
+    color-mix(in srgb, var(--color-sage-light) 30%, var(--color-cream)) 0%,
+    color-mix(in srgb, var(--color-cream) 90%, var(--color-sage-light)) 100%
   );
+  border-inline: 1px solid color-mix(in srgb, var(--color-silver) 45%, transparent);
+  border-block-end: 1px solid color-mix(in srgb, var(--color-silver) 45%, transparent);
 }
 
-.envelope__fold--right {
-  inset: 0 0 0 50%;
-  clip-path: polygon(100% 0, 0 50%, 100% 100%);
-  background-image: linear-gradient(
-    270deg,
-    color-mix(in srgb, var(--color-cream) 90%, var(--color-sage-light)) 0%,
-    var(--color-cream-soft) 100%
-  );
-}
+/* The top flap. It must cover the ENTIRE area above the body's top edge with
+   NO gap, or the white card shows through at the sides (the reported bug). So
+   its clip-path is the exact complement of the body's top notch: full width at
+   the top, down the sides to the body's shoulders at 34%, then in to the V
+   point at 72%. Closed at rest (z 4, sealing the top). On open it rotates
+   backward on its top hinge and its z-index drops below the card. Single 3D
+   element.
 
-/* The bottom fold laps over both wings, apex a little above the midline. The
-   drop-shadow draws the two diagonal fold lines for free. */
-.envelope__fold--bottom {
-  inset: 44% 0 0 0;
-  clip-path: polygon(0 100%, 50% 0, 100% 100%);
-  background-image: linear-gradient(
-    0deg,
-    color-mix(in srgb, var(--color-cream) 97%, var(--color-sage-light)) 0%,
-    color-mix(in srgb, var(--color-cream-soft) 96%, white) 100%
-  );
-  filter: drop-shadow(
-    0 -1px 1px color-mix(in srgb, var(--color-silver) 52%, transparent)
-  );
-}
-
-/* --- The top flap ------------------------------------------------------- */
-/* Two faces on a shared 3D wrapper, the classic card-flip arrangement. The
-   wrapper carries no `clip-path`: that property is a grouping property and
-   would flatten `preserve-3d`, killing the fold. The faces carry it instead. */
+   The flap fills the full frame height (`inset: 0`) so the clip-path
+   percentages line up 1:1 with the body's (which also spans the full frame),
+   guaranteeing their edges meet exactly. */
 .envelope__flap {
   position: absolute;
-  inset: 0 0 auto 0;
-  block-size: 58%;
-  z-index: 3;
-  transform-origin: top center;
-  transform-style: preserve-3d;
-}
-
-.envelope__flap-face,
-.envelope__flap-back {
-  position: absolute;
   inset: 0;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  backface-visibility: hidden;
-}
-
-/* Outer face: Sage, lit from the top-left. */
-.envelope__flap-face {
+  z-index: 4;
+  transform-origin: top center;
+  /* Exact complement of the body's `polygon(0 34%, 50% 72%, 100% 34%, ...)`
+     top edge — the flap owns everything above that line, corner to corner. */
+  clip-path: polygon(0 0, 100% 0, 100% 34%, 50% 72%, 0 34%);
   background-image: linear-gradient(
     158deg,
-    color-mix(in srgb, var(--color-sage-light) 86%, white) 0%,
-    var(--color-sage-light) 32%,
+    color-mix(in srgb, var(--color-sage-light) 88%, white) 0%,
+    var(--color-sage-light) 40%,
     var(--color-sage) 100%
   );
-}
-
-/* Underside: the darker Sage the fold shows once it passes vertical. */
-.envelope__flap-back {
-  transform: rotateX(180deg);
-  background-image: linear-gradient(
-    158deg,
-    var(--color-sage-deep) 0%,
-    color-mix(in srgb, var(--color-sage) 88%, var(--color-sage-deep)) 100%
-  );
-}
-
-/* A hairline Cream crease along the fold, so the flap has an edge. */
-.envelope__flap-face::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 45%, transparent);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, white 40%, transparent);
 }
 
 /* --- The seal ----------------------------------------------------------- */
-/* Wax, not a monogram: a domed Sage disc with a specular highlight, an
-   engraved Cream ring, and a single Cream point at its centre. No initials, no
-   letters, nothing that could carry wedding data (1.4). */
+/* Wax, not a monogram: a domed Sage disc with a highlight and an engraved ring.
+   Sits on the flap point; travels and fades with the flap on open. */
 .envelope__seal {
-  --seal-size: 52px;
+  --seal-size: 46px;
   position: absolute;
-  z-index: 4;
+  z-index: 5;
   inline-size: var(--seal-size);
   block-size: var(--seal-size);
   left: calc(50% - var(--seal-size) / 2);
-  top: calc(58% - var(--seal-size) / 2);
+  /* On the flap's V point: the flap now meets the body at 72% of the frame
+     height, so centre the seal over that seam. */
+  top: calc(72% - var(--seal-size) / 2);
   border-radius: 9999px;
   background-image: radial-gradient(
     circle at 34% 27%,
@@ -311,7 +300,7 @@
 
 @media (min-width: 640px) {
   .envelope__seal {
-    --seal-size: 62px;
+    --seal-size: 56px;
   }
 }
 
@@ -366,94 +355,178 @@
 }
 
 /* --- The opening sequence (1.5) ----------------------------------------- */
-/* One shot, `forwards` on every step so nothing snaps back, and the whole
-   score finishes at 1560ms — inside `OPEN_MS = 1600`, which `App` owns, and
+/* Three clear, sequential beats, matching the reference GIF: the flap opens,
+   THEN the letter slides up out of the pocket and rises well clear of the
+   envelope in front of it, THEN the whole scene fades as `App` reveals the
+   invitation. One shot, `forwards` on every step so nothing snaps back, and the
+   score finishes at ~2160ms — inside `OPEN_MS = 2200`, which `App` owns, and
    inside the 1200–2500ms band requirement 1.5 sets. Read as a score:
 
-     0ms    the wax cracks, twists, and fades
-     140ms  the flap folds back over the top, showing its darker underside
-     620ms  the card lifts out of the envelope
-     1180ms the whole thing dissolves upward into light
-     1560ms done; `App` swaps in the invitation at 1600ms
+     BEAT 1 — the flap opens
+       0ms    the wax seal cracks, twists, and fades
+       80ms   the flap folds all the way back over the top (done ~780ms)
 
-   The caption leaves immediately, so the instruction is gone before the flap
-   has finished moving and never lingers over the reveal. */
+     BEAT 2 — the letter comes out
+       760ms  the card slides straight up out of the pocket and keeps rising,
+              ending well above the envelope (done ~1860ms)
 
-.envelope--opening {
-  animation: envelope-dissolve 380ms ease-in 1180ms forwards;
+     BEAT 3 — the handoff
+       1820ms the whole scene lifts and fades into light (done ~2160ms)
+       2200ms `App` swaps in the invitation
+
+   HOW THE LETTER GETS IN FRONT — RELIABLY. At rest the card sits at z-index 1,
+   behind the folds (z-index 2) and flap (z-index 3) that form the pocket, so it
+   is genuinely tucked inside. `z-index` inside `@keyframes` is not honoured
+   consistently across browsers, so it is NOT animated: instead the state class
+   `.envelope--opening .envelope__card` sets `z-index: 6` statically for the
+   whole sequence. That is why the previous attempt read the same as the old
+   one — the keyframe z-index flip never took, so the card stayed behind the
+   paper and only peeked over the top. With a static bump the card paints in
+   front from the first frame of the slide and travels cleanly up over the
+   envelope, exactly as in the reference.
+
+   WHY THE ENVELOPE BODY NO LONGER FADES DURING THE SLIDE. The old score faded
+   the entire `.envelope` (card included) from 1200ms, which cut the slide off
+   before the letter was clearly out. Now only the caption, motes and bloom move
+   during beats 1–2; the envelope body stays put and fully visible while the
+   letter rises, and the single scene-wide fade is deferred to beat 3 on the
+   whole gate button (`.gate--opening .envelope-stage`), so it carries the
+   envelope AND the risen letter out together as one.
+
+   The caption leaves immediately, so the instruction never lingers over the
+   reveal. */
+
+/* A slow, smooth three-beat score. Every duration is stretched and every curve
+   softened compared with the brisk earlier version, so each beat glides rather
+   than snaps. The whole score finishes ~3240ms, just under `OPEN_MS = 3400`
+   which `App` owns. Read as a score:
+
+     BEAT 1 — the flap opens          0.10s -> 1.15s   (a slow, gentle unfold)
+     BEAT 2 — the letter slides out   1.15s -> 2.75s   (a smooth, unhurried rise)
+     TEXT  — "You're Invited" fades   ~2.0s -> ~2.9s
+     BEAT 3 — the scene fades away    2.85s -> 3.24s
+
+   The easings favour long ease-in-out / ease-out tails so nothing arrives
+   abruptly. */
+
+/* BEAT 1 — the flap opens, slowly, on its top hinge. z-index (and the seal's)
+   drop below the card via a plain state rule so the letter later passes in
+   front of the fallen-back flap. */
+.envelope--opening .envelope__flap {
+  z-index: 0;
+  animation: envelope-flap-open 1050ms cubic-bezier(0.4, 0, 0.2, 1) 100ms
+    forwards;
 }
 
 .envelope--opening .envelope__seal {
-  animation: envelope-seal-break 400ms cubic-bezier(0.3, 0, 0.7, 1) both;
+  z-index: 0;
+  animation: envelope-flap-open 1050ms cubic-bezier(0.4, 0, 0.2, 1) 100ms
+    forwards,
+    envelope-seal-fade 460ms ease-out 100ms forwards;
 }
 
-.envelope--opening .envelope__flap {
-  animation: envelope-flap-open 780ms cubic-bezier(0.32, 0.02, 0.18, 1) 140ms
-    forwards;
-}
-
+/* BEAT 2 — the letter slides up out of the pocket, smoothly. Lifted to z 4 for
+   the sequence so it rides in front of the body. Starts as the flap finishes,
+   with a long soft-landing tail. */
 .envelope--opening .envelope__card {
-  animation: envelope-card-rise 840ms cubic-bezier(0.2, 0.72, 0.14, 1) 620ms
+  z-index: 4;
+  animation: envelope-card-slide 1600ms cubic-bezier(0.33, 0, 0.15, 1) 1150ms
     forwards;
+}
+
+/* The card's contents appear only once the envelope is opening — the closed
+   card is blank ("You're Invited" shows only after the click). They fade in
+   gently as the card clears the pocket, a little after the slide starts. */
+.envelope--opening .envelope__card-title {
+  animation: envelope-card-text-in 760ms ease-out 1980ms forwards;
+}
+
+.envelope--opening .envelope__card::before {
+  animation: envelope-card-text-in 680ms ease-out 2260ms forwards;
+}
+
+.envelope--opening .envelope__card::after {
+  animation: envelope-card-text-in 680ms ease-out 2420ms forwards;
+}
+
+/* BEAT 3 — the whole scene lifts and fades as the site takes over, on the
+   `.envelope` frame so body, back, flap and the risen letter go together. */
+.gate--opening .envelope {
+  animation: envelope-scene-out 560ms ease-in 2850ms forwards;
 }
 
 .gate--opening .gate__caption {
-  animation: gate-caption-out 260ms ease-out 40ms forwards;
+  animation: gate-caption-out 320ms ease-out 60ms forwards;
 }
 
 .gate--opening .gate__bloom {
-  animation: gate-bloom 880ms ease-out 800ms forwards;
+  animation: gate-bloom 900ms ease-out 2650ms forwards;
 }
 
 .gate--opening .gate__moteField {
-  animation: gate-mote-field-out 620ms ease-out 700ms forwards;
+  animation: gate-mote-field-out 900ms ease-out 1300ms forwards;
 }
 
-@keyframes envelope-seal-break {
-  0% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  55% {
-    transform: scale(1.15) rotate(-7deg);
-    opacity: 0.55;
-  }
-  100% {
-    transform: scale(1.32) rotate(-11deg);
-    opacity: 0;
-  }
-}
-
+/* The flap swinging open on its top hinge — from flat-closed to well past
+   vertical, so it lies back off the top of the envelope. The parent
+   `perspective` turns this rotateX into real depth. */
 @keyframes envelope-flap-open {
   0% {
     transform: rotateX(0deg);
   }
   100% {
-    transform: rotateX(-172deg);
+    transform: rotateX(-165deg);
   }
 }
 
-@keyframes envelope-card-rise {
+/* The seal fades quickly as the flap starts to lift (it rides the flap's
+   rotation via the shared animation above, and fades via this one). */
+@keyframes envelope-seal-fade {
   0% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.45;
-  }
-  35% {
     opacity: 1;
   }
   100% {
-    transform: translate3d(0, -47%, 0) scale(1.03);
-    opacity: 1;
+    opacity: 0;
   }
 }
 
-@keyframes envelope-dissolve {
+/* The letter sliding straight up out of the pocket and rising clear of the
+   envelope. Starts from the card's resting position (14% down inside the
+   pocket) so there is no jump, holds a beat as the flap gets out of the way,
+   then rises up past the top. Transform only. */
+@keyframes envelope-card-slide {
+  0% {
+    transform: translate3d(0, 14%, 0) scale(1);
+  }
+  22% {
+    transform: translate3d(0, 14%, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(0, -118%, 0) scale(1.04);
+  }
+}
+
+/* The card's text and rules fading into view once it is out of the pocket. */
+@keyframes envelope-card-text-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Beat 3: the scene lifts a little and fades out, carrying the whole envelope
+   and the risen letter together. */
+@keyframes envelope-scene-out {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
     opacity: 1;
   }
   100% {
-    transform: translate3d(0, -18px, 0) scale(1.07);
+    transform: translate3d(0, -26px, 0) scale(1.04);
     opacity: 0;
   }
 }

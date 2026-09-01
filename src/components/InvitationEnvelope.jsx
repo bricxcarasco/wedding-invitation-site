@@ -91,6 +91,11 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
   const envelopeIdle = !reduced && !opening ? ' envelope--idle' : ''
   const captionIdle = !reduced && !opening ? ' gate__caption--idle' : ''
 
+  // The opening class the CSS score hangs off. Without this the flap and card
+  // keyframes (scoped under `.envelope--opening`) never match anything, which
+  // is exactly why the flap never moved: only the `.gate--opening` rules fired.
+  const envelopeOpening = opening ? ' envelope--opening' : ''
+
   return (
     <main
       className={`gate relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-10${
@@ -137,16 +142,22 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
         className="control gate__button relative z-10 flex flex-col items-center gap-7 rounded-sm p-3 sm:gap-9"
       >
         <span className="envelope-stage block">
-          <span className={`envelope block${envelopeIdle}`}>
-            <span className="envelope__base" />
-            <span className="envelope__card" />
-            <span className="envelope__fold envelope__fold--left" />
-            <span className="envelope__fold envelope__fold--right" />
-            <span className="envelope__fold envelope__fold--bottom" />
-            <span className="envelope__flap">
-              <span className="envelope__flap-face" />
-              <span className="envelope__flap-back" />
+          <span className={`envelope block${envelopeIdle}${envelopeOpening}`}>
+            {/* Back wall of the envelope (behind everything). */}
+            <span className="envelope__back" />
+            {/* The letter/card — starts tucked inside, slides up on open. The
+                "You're Invited" line is hidden until the envelope is opened. */}
+            <span className="envelope__card">
+              <span className="envelope__card-title" aria-hidden="true">
+                You&rsquo;re Invited
+              </span>
             </span>
+            {/* Front pocket: the body that covers the lower half of the card. */}
+            <span className="envelope__body" />
+            {/* The top flap: a downward triangle hinged at its top edge. It
+                rotates open (backward) and drops behind the letter. */}
+            <span className="envelope__flap" />
+            {/* Wax seal on the flap. */}
             <span className="envelope__seal" />
           </span>
         </span>

@@ -10,9 +10,9 @@
 // The tree is reached the way a guest reaches it — through the Envelope_Gate.
 // `App` starts at phase 'closed' (InvitationEnvelope only; MainInvitation is
 // genuinely not constructed, per 1.4). Activating the envelope moves it to
-// 'opening', and a timer in `App` advances it to 'open' after OPEN_MS (1600ms)
+// 'opening', and a timer in `App` advances it to 'open' after OPEN_MS (3400ms)
 // at which point MainInvitation — and therefore Venue with its map links — is
-// mounted. Fake timers let us cross that 1600ms deterministically.
+// mounted. Fake timers let us cross that 3400ms deterministically.
 //
 // Motion context needs no wrapper here: `App` owns the single
 // `useReducedMotion()` call and publishes it through MotionProvider, so
@@ -23,9 +23,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App.jsx'
 import { renderWithMotion } from './helpers.js'
 
-// Matches App's OPEN_MS. A little slack past 1600ms guarantees the reveal timer
+// Matches App's OPEN_MS. A little slack past 3400ms guarantees the reveal timer
 // has fired regardless of any rounding.
-const OPEN_MS = 1600
+const OPEN_MS = 3400
 
 /**
  * Render `<App />`, open the envelope, and run the reveal clock past OPEN_MS so

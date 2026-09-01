@@ -28,10 +28,10 @@ import { renderWithMotion } from './helpers.js'
 import App from '../App.jsx'
 
 // The open timings from App. The reduced path advances after 250ms; the full
-// path after 1600ms. `openGate` waits past whichever applies so MainInvitation
-// mounts.
+// path after 3400ms (OPEN_MS). `openGate` waits past whichever applies so
+// MainInvitation mounts.
 const OPEN_MS_REDUCED = 250
-const OPEN_MS_FULL = 1600
+const OPEN_MS_FULL = 3400
 
 // Every Main_Invitation section id, in scroll order, plus the enumeration the
 // property quantifies over. The footer is a `<footer>` landmark (no id), and the
@@ -58,7 +58,7 @@ async function openGate(container, { reducedMotion = true } = {}) {
   const button = container.querySelector('button[aria-label="Open your invitation"]')
   expect(button, 'the envelope should render its single open button').not.toBeNull()
 
-  // App's open timer is 250ms under reduce and 1600ms otherwise; wait past the
+  // App's open timer is 250ms under reduce and 3400ms otherwise; wait past the
   // one that applies to this render's motion mode so the phase reaches 'open'.
   const openMs = reducedMotion ? OPEN_MS_REDUCED : OPEN_MS_FULL
 

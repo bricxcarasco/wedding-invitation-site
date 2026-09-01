@@ -10,7 +10,7 @@
 // the tree in a provider (see the note in helpers.js); it does not need to,
 // because `App` publishes the preference itself.
 //
-// The reveal is timer-driven (OPEN_MS = 1600ms under full motion), so every
+// The reveal is timer-driven (OPEN_MS = 3400ms under full motion), so every
 // test that reaches the revealed state uses fake timers and advances past it
 // inside `act`.
 import { act, fireEvent, render, screen } from '@testing-library/react'
@@ -20,10 +20,10 @@ import App from '../App.jsx'
 import weddingConfig from '../config/weddingConfig.js'
 import { renderWithMotion } from './helpers.js'
 
-// The full-motion reveal duration owned by App. Advancing past this drives the
-// gate from 'opening' to 'open'. Kept slightly above the real 1600ms so a test
-// never races the exact boundary.
-const PAST_OPEN_MS = 1600
+// The full-motion reveal duration owned by App (OPEN_MS = 3400ms). Advancing
+// past this drives the gate from 'opening' to 'open'. Kept above the real
+// duration so a test never races the exact boundary.
+const PAST_OPEN_MS = 3500
 
 // The couple names (`displayNames`) appear more than once in the revealed tree
 // — the Hero <h1> and the Footer — so presence is asserted with a count via
@@ -226,7 +226,7 @@ describe('envelope gate — single-animation guard (1.5)', () => {
     // Part-way through the reveal, tap again. The gate guards `phase !== 'closed'`,
     // so this must not re-trigger or extend the animation.
     act(() => {
-      vi.advanceTimersByTime(800)
+      vi.advanceTimersByTime(1500)
     })
     act(() => {
       fireEvent.click(button)
@@ -235,9 +235,9 @@ describe('envelope gate — single-animation guard (1.5)', () => {
     // Still not open before the original schedule completes.
     expect(countCoupleNames()).toBe(0)
 
-    // Advance just past the ORIGINAL 1600ms deadline (800 already elapsed).
+    // Advance past the ORIGINAL OPEN_MS = 3400ms deadline (1500 already elapsed).
     act(() => {
-      vi.advanceTimersByTime(900)
+      vi.advanceTimersByTime(2100)
     })
 
     // The reveal completed on its original schedule — the second tap neither
