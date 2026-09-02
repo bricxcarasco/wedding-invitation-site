@@ -10,10 +10,11 @@
 // filename (`bricx-and-mae-wedding.ics`, 9.2) lives in `icalendar.js`, so the
 // string is not restated at this call site (14.6).
 //
-// Styling comes entirely from the shared `.control` / `.tap-target` classes in
+// Behaviour styling comes from the shared `.control` / `.tap-target` classes in
 // `index.css`: the ≥44×44px hit area (11.4) and the hover/focus treatment
 // (10.4) are defined there once and reused, so this file adds no motion of its
-// own and cannot drift from the other controls.
+// own and cannot drift from the other controls. The label itself is set in the
+// Parisienne display face (`font-display`) to match the other primary buttons.
 
 import { buildCeremonyEvent, downloadIcs } from '../lib/icalendar.js'
 
@@ -30,7 +31,7 @@ export function AddToCalendarButton() {
   return (
     <button
       type="button"
-      className="control tap-target rounded-full border border-sage bg-sage px-6 text-cream"
+      className="control control-btn tap-target rounded-full border border-sage bg-sage px-6 font-display text-xl text-cream"
       onClick={handleClick}
     >
       Add to Calendar

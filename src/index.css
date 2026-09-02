@@ -214,7 +214,12 @@
   /* The shared visible hover state every interactive control gets (10.4). The
      feedback is carried by transform and opacity only, so it stays compositor-
      only; colour changes are applied instantly rather than transitioned, which
-     keeps the animated-property set down to the two above. */
+     keeps the animated-property set down to the two above.
+
+     NOTE: `.control` is applied to the text inputs and the textarea too, not
+     only the buttons — so this base state stays gentle and adds no `overflow`
+     or pulse that would misbehave on a field. The four primary BUTTONS opt into
+     the richer hover/press/click treatment via `.control-btn` below. */
   .control {
     cursor: pointer;
     transition:
@@ -229,6 +234,58 @@
 
   .control:active {
     transform: translateY(0);
+  }
+
+  /* --- Primary buttons: richer hover + click animation -------------------- */
+  /* Opted into by the four primary action buttons only ("View Ceremony
+     Location", "View Reception Location", "Add to Calendar", "Send RSVP") — NOT
+     the inputs/textarea that also carry `.control`. Everything animated here is
+     transform + opacity, so it stays compositor-only and inside the 10.5 / 12.4
+     budget.
+
+     `position: relative` + `overflow: hidden` clip the click-pulse `::after`
+     bloom to the button's rounded pill; `isolate` gives it its own stacking
+     context so the overlay never rises over neighbouring content. */
+  .control-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* Hover: a clearer lift than the base `.control` — rises a little further and
+     scales up so the button reads as distinctly interactive. */
+  .control-btn:hover {
+    transform: translateY(-3px) scale(1.04);
+    opacity: 0.96;
+  }
+
+  /* Press: a quick, tactile push-down that springs back on release. Shorter
+     duration than the hover so the press feels crisp. */
+  .control-btn:active {
+    transform: translateY(1px) scale(0.97);
+    transition-duration: 80ms;
+  }
+
+  /* Click pulse — the "animation on click". A soft Cream overlay that blooms out
+     from the button and fades on every press. It rides an `::after` pseudo-
+     element (no extra markup) and animates only transform + opacity. Declaring
+     the animation on `:active` re-arms it on each fresh click/tap. At rest the
+     overlay is `scale(0)` and transparent, so it is invisible until a press
+     fires it; `pointer-events: none` keeps it from intercepting the click. */
+  .control-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-color: var(--color-cream-soft);
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+  }
+
+  .control-btn:active::after {
+    animation: control-pulse 500ms ease-out;
   }
 
   /* A clear keyboard focus ring in Sage. :focus-visible rather than :focus so
@@ -284,6 +341,21 @@
   }
 }
 
+/* The click pulse for `.control::after`. A soft bloom: starts small and faintly
+   visible at the control's centre, expands to fill it while fading out, then
+   settles back to the invisible resting state. Transform and opacity only, so
+   it runs entirely on the compositor. */
+@keyframes control-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
 /* ==========================================================================
    Reduced motion (10.6, 1.8, 2.5, 4.7, 5.3, 6.8)
 
@@ -324,6 +396,17 @@
   .ambient {
     display: none !important;
   } /* 1.8 */
+  /* Controls and buttons keep their instant colour/focus feedback but drop the
+     motion: no hover lift/scale, no press displacement, and no click-pulse. */
+  .control:hover,
+  .control:active,
+  .control-btn:hover,
+  .control-btn:active {
+    transform: none !important;
+  } /* 10.6 */
+  .control-btn:active::after {
+    animation: none !important;
+  } /* 10.6 */
 }
 
 /* ==========================================================================

@@ -34,15 +34,15 @@ function expectUnits(result, { months, days, hours, minutes, seconds }) {
 }
 
 describe('CEREMONY_MS', () => {
-  it('is the epoch value of 2027-02-13T14:00:00+08:00', () => {
+  it('is the epoch value of 2027-02-13T11:00:00+08:00', () => {
     // The design names this number outright. Asserting the literal — rather than
     // re-deriving it from the same config string the module reads — is what
     // catches an accidental edit to CEREMONY_DATETIME that still parses.
-    expect(CEREMONY_MS).toBe(1802498400000)
+    expect(CEREMONY_MS).toBe(1802487600000)
   })
 
-  it('is 2027-02-13T06:00:00Z, the same instant expressed in UTC', () => {
-    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 13, 6, 0, 0))
+  it('is 2027-02-13T03:00:00Z, the same instant expressed in UTC', () => {
+    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 13, 3, 0, 0))
   })
 })
 
@@ -227,60 +227,60 @@ describe('breakdown — 30/31-day month transitions (3.1)', () => {
 })
 
 describe('breakdown — mixed units against the Ceremony_Datetime', () => {
-  // These count toward the real Ceremony_Datetime, 2027-02-13 14:00 +08:00, and
+  // These count toward the real Ceremony_Datetime, 2027-02-13 11:00 +08:00, and
   // therefore also exercise the default `targetMs` parameter. Every expected
   // figure was worked out from the calendar and then confirmed by an
   // independent `Date.UTC` computation of anchor + remainder === target.
   it.each([
-    // Two whole months would reach Feb 25 09:30:15, past the target, so the
-    // correction loop steps back to one: anchor Jan 25 09:30:15.
+    // Two whole months would reach Feb 25 06:30:15, past the target, so the
+    // correction loop steps back to one: anchor Jan 25 06:30:15.
     // Jan 25 → Feb 13 is 6 days to the end of January plus 13 into February,
-    // 19 days; 09:30:15 → 14:00:00 is 4h 29m 45s.
+    // 19 days; 06:30:15 → 11:00:00 is 4h 29m 45s.
     {
-      label: '2026-12-25 09:30:15 → 1 month, 19 days, 4:29:45',
-      now: '2026-12-25T09:30:15',
+      label: '2026-12-25 06:30:15 → 1 month, 19 days, 4:29:45',
+      now: '2026-12-25T06:30:15',
       expected: { months: 1, days: 19, hours: 4, minutes: 29, seconds: 45 },
     },
     // Exactly six calendar months earlier, same civil time of day, so the
     // remainder is empty. Aug 13 → Feb 13 spans months of 31, 30, 31, 30, 31
     // and 31 days, which plain division could never render as a whole 6.
     {
-      label: '2026-08-13 14:00:00 → 6 months exactly',
-      now: '2026-08-13T14:00:00',
+      label: '2026-08-13 11:00:00 → 6 months exactly',
+      now: '2026-08-13T11:00:00',
       expected: { months: 6, days: 0, hours: 0, minutes: 0, seconds: 0 },
     },
     // A month behind but at a later time of day, so the month is given up and
-    // the span becomes days: Jan 13 15:30 → Feb 13 15:30 is 31 days, and the
+    // the span becomes days: Jan 13 12:30 → Feb 13 12:30 is 31 days, and the
     // target is 1h 30m before that, leaving 30 days 22h 30m.
     {
-      label: '2027-01-13 15:30:00 → 0 months, 30 days, 22:30:00',
-      now: '2027-01-13T15:30:00',
+      label: '2027-01-13 12:30:00 → 0 months, 30 days, 22:30:00',
+      now: '2027-01-13T12:30:00',
       expected: { months: 0, days: 30, hours: 22, minutes: 30, seconds: 0 },
     },
-    // Same civil day as the wedding: 11:23:45.678 → 14:00:00.000 is
+    // Same civil day as the wedding: 08:23:45.678 → 11:00:00.000 is
     // 2h 36m 14.322s. The 322ms tail is truncated, so seconds reads 14.
     {
       label: 'the wedding morning → 0 months, 0 days, 2:36:14 (322ms truncated)',
-      now: '2027-02-13T11:23:45.678',
+      now: '2027-02-13T08:23:45.678',
       expected: { months: 0, days: 0, hours: 2, minutes: 36, seconds: 14 },
     },
     // One second out.
     {
       label: 'one second before the ceremony → seconds 1',
-      now: '2027-02-13T13:59:59',
+      now: '2027-02-13T10:59:59',
       expected: { months: 0, days: 0, hours: 0, minutes: 0, seconds: 1 },
     },
     // One minute out.
     {
       label: 'one minute before the ceremony → minutes 1',
-      now: '2027-02-13T13:59:00',
+      now: '2027-02-13T10:59:00',
       expected: { months: 0, days: 0, hours: 0, minutes: 1, seconds: 0 },
     },
     // The previous civil day at the same time: February 2027 has 28 days and
     // this crosses no month boundary, so it is a plain 1 day.
     {
       label: 'the day before the ceremony → days 1',
-      now: '2027-02-12T14:00:00',
+      now: '2027-02-12T11:00:00',
       expected: { months: 0, days: 1, hours: 0, minutes: 0, seconds: 0 },
     },
   ])('$label', ({ now, expected }) => {

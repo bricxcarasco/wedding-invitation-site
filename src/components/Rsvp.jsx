@@ -337,7 +337,7 @@ export function Rsvp() {
         <button
           type="submit"
           disabled={submitting}
-          className="control tap-target rounded-full bg-sage px-8 font-medium text-cream-soft transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="control control-btn tap-target rounded-full bg-sage px-8 font-display text-xl text-cream-soft disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Sending…' : 'Send RSVP'}
         </button>

@@ -1,7 +1,7 @@
 // Property test for `src/lib/icalendar.js` — the design's Property 7.
 //
 // `icalendar.test.js` pins the concrete bytes that a round-trip cannot see: the
-// literal `DTSTART:20270213T060000Z` for the real Ceremony_Datetime, the literal
+// literal `DTSTART:20270213T030000Z` for the real Ceremony_Datetime, the literal
 // `\,` in the LOCATION line. This file states what must hold for *any* event.
 //
 // A note on independence, because a round-trip is the one shape of test that can

@@ -6,7 +6,7 @@
 // unescaper that agree on the wrong convention still round-trip perfectly. So
 // the assertions here are deliberately one-sided and literal —
 //
-//   - the exact bytes `DTSTART:20270213T060000Z` for the real Ceremony_Datetime,
+//   - the exact bytes `DTSTART:20270213T030000Z` for the real Ceremony_Datetime,
 //     which is what 9.3's "expressed in UTC" reduces to once the `+08:00` offset
 //     is resolved,
 //   - the exact escape `\,` in the LOCATION line, which is the difference
@@ -86,15 +86,16 @@ function readProperty(ics, name) {
 describe('toIcs — the Ceremony_Datetime in UTC (9.3)', () => {
   const ics = toIcs(buildCeremonyEvent())
 
-  it('serialises 2027-02-13T14:00:00+08:00 as DTSTART:20270213T060000Z', () => {
+  it('serialises the Ceremony_Datetime as DTSTART:20270213T030000Z', () => {
     // Not `toContain` on a substring of a timestamp: the whole line, so a stray
-    // trailing character or a missing `Z` fails.
-    expect(ics.split(CRLF)).toContain('DTSTART:20270213T060000Z')
+    // trailing character or a missing `Z` fails. 11:00 +08:00 is 03:00 UTC.
+    expect(ics.split(CRLF)).toContain('DTSTART:20270213T030000Z')
   })
 
-  it('serialises the 90-minute duration as DTEND:20270213T073000Z', () => {
+  it('serialises the 90-minute duration as DTEND:20270213T043000Z', () => {
+    // 03:00 UTC + 90 min = 04:30 UTC.
     expect(weddingConfig.calendar.durationMinutes).toBe(90)
-    expect(ics.split(CRLF)).toContain('DTEND:20270213T073000Z')
+    expect(ics.split(CRLF)).toContain('DTEND:20270213T043000Z')
   })
 
   it('carries the ceremony summary and the venue as the location', () => {

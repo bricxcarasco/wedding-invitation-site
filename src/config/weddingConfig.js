@@ -27,7 +27,7 @@ import firstDance from '../assets/gallery/08-first-dance.webp'
  * time, so every runtime derives the same epoch value regardless of host
  * timezone. Edit this one string to move the wedding.
  */
-export const CEREMONY_DATETIME = '2027-02-13T14:00:00+08:00'
+export const CEREMONY_DATETIME = '2027-02-13T11:00:00+08:00'
 
 /** The Palette. Four entries, each a name and a #rrggbb value. (14.4, 7.2, 7.3) */
 export const palette = [
@@ -82,7 +82,7 @@ const weddingConfig = {
   schedule: {
     ceremonyDatetime: CEREMONY_DATETIME,
     displayDate: 'February 13, 2027',
-    displayTime: '2:00 PM',
+    displayTime: '11:00 AM',
   },
 
   // 14.3 — one venue name and one Google Maps URL per venue. See mapsSearchUrl
@@ -97,6 +97,11 @@ const weddingConfig = {
     label: 'Reception',
     venueName: RECEPTION_VENUE,
     mapsUrl: mapsSearchUrl(RECEPTION_VENUE),
+    // The reception follows the ceremony later the same day. Held on the
+    // reception group (not `schedule`, which anchors the ceremony instant the
+    // countdown and the .ics file are built from) because it is a display-only
+    // time for the reception card and drives no date arithmetic.
+    displayTime: '2:00 PM',
   },
 
   palette,
@@ -117,6 +122,24 @@ const weddingConfig = {
     'For I know the plans I have for you, declares the Lord, plans to prosper ' +
     'you and not to harm you, plans to give you hope and a future.',
   storyReference: 'Jeremiah 29:11',
+
+  /**
+   * The Getting-There / Venue section copy. The couple chose to close that
+   * section with scripture rather than repeat the ceremony and reception
+   * details already shown in Wedding_Details. `Venue` renders `verse` as a
+   * centred quotation with `verseReference` as a cite line beneath it — the
+   * same blockquote pattern OurStory uses. The two map links themselves now
+   * live on the Wedding_Details cards, next to their venue info.
+   */
+  venue: {
+    verse:
+      'Love is patient, love is kind. It does not envy, it does not boast, it ' +
+      'is not proud. It does not dishonor others, it is not self-seeking, it ' +
+      'is not easily angered, it keeps no record of wrongs. Love does not ' +
+      'delight in evil but rejoices with the truth. It always protects, always ' +
+      'trusts, always hopes, always perseveres.',
+    verseReference: '1 Corinthians 13:4-7',
+  },
 
   dressCode: {
     // 7.1 — semi-formal / garden-formal, phrased as an invitation rather than a

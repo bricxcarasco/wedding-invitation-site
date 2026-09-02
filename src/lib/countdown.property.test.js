@@ -581,10 +581,10 @@ describe('Property 2: Countdown is timezone-invariant', () => {
   })
 
   it('anchors the Ceremony_Datetime to +08:00 rather than to the host zone', () => {
-    // 2027-02-13 14:00 +08:00 is 2027-02-13 06:00 UTC. `Date.UTC` reads no local
+    // 2027-02-13 11:00 +08:00 is 2027-02-13 03:00 UTC. `Date.UTC` reads no local
     // field, so this equality is the same in every host timezone — and it is
     // what makes the subtraction inside `breakdown` timezone-free to begin with.
-    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 13, 6, 0, 0))
+    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 13, 3, 0, 0))
     expect(phtOffsetMsAt(CEREMONY_MS)).toBe(PHT_OFFSET_MS)
   })
 })

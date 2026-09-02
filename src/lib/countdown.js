@@ -12,7 +12,7 @@
 import { CEREMONY_DATETIME } from '../config/weddingConfig.js'
 
 /**
- * The Ceremony_Datetime as a single epoch-millisecond integer: 1802498400000.
+ * The Ceremony_Datetime as a single epoch-millisecond integer: 1802487600000.
  *
  * `Date.parse` resolves the `+08:00` offset at parse time, so this value is
  * identical in every runtime regardless of the host timezone (3.3, 3.6).

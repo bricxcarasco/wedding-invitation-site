@@ -66,8 +66,8 @@ function fnv1a32(input) {
  * format, `YYYYMMDDTHHMMSSZ` (§3.3.5, form 2).
  *
  * Built exclusively from `getUTC*` getters, so the visitor's timezone never
- * enters the output. `2027-02-13T14:00:00+08:00` parses to 1802498400000 and
- * formats to `20270213T060000Z`, which is what 9.3's "expressed in UTC" means.
+ * enters the output. `2027-02-13T11:00:00+08:00` parses to 1802487600000 and
+ * formats to `20270213T030000Z`, which is what 9.3's "expressed in UTC" means.
  */
 function toUtcBasic(epochMs) {
   const date = new Date(epochMs)

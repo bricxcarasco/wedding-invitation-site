@@ -126,7 +126,7 @@ describe('countdown timer — crossing the ceremony instant (3.4)', () => {
   it('enters the post-wedding state within one tick of the target passing (3.4)', () => {
     // Start just before the target: the ceremony is 500ms away, so the
     // pre-ceremony units render on first paint.
-    const startMs = Date.parse('2027-02-13T14:00:00+08:00') - 500
+    const startMs = Date.parse('2027-02-13T11:00:00+08:00') - 500
     const targetMs = startMs + 500
 
     vi.setSystemTime(startMs)
