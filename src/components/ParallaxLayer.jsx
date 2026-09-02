@@ -38,8 +38,9 @@ import { useParallax } from '../hooks/useParallax.js'
  *
  * The box is 200vh tall and starts 50vh above the viewport, so the drift written
  * by `useParallax` never pulls an edge into view at the default factor. The
- * gradient also starts at Cream, the same tone as the page background, so even
- * an extreme scroll depth on a very long page cannot produce a visible seam.
+ * gradient starts fully TRANSPARENT (it used to start at opaque Cream) so the
+ * fixed SiteBackground photo shows through it everywhere; the only paint it adds
+ * is a faint Sage depth tint lower down, which cannot produce a visible seam.
  *
  * @param {object} props
  * @param {string} [props.className] appended last, so a caller can retune
@@ -54,7 +55,7 @@ export function ParallaxLayer({ className = '', factor }) {
     <div
       ref={ref}
       aria-hidden="true"
-      className={`parallax-layer pointer-events-none fixed inset-x-0 -top-[50vh] -z-10 h-[200vh] bg-linear-to-b from-cream via-sage-light/25 to-sage/15 ${className}`}
+      className={`parallax-layer pointer-events-none fixed inset-x-0 -top-[50vh] -z-10 h-[200vh] bg-linear-to-b from-transparent via-sage-light/15 to-sage/10 ${className}`}
     />
   )
 }

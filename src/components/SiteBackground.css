@@ -1,0 +1,46 @@
+/* ==========================================================================
+   SiteBackground — readability veil over the site-wide background photo
+   --------------------------------------------------------------------------
+   `SiteBackground.jsx` paints a fixed, full-viewport `bg-cover` photo
+   (`src/assets/images/hero-bg.jpg`) behind every section. A full-bleed
+   photograph is far busier than the flat Cream the site was designed on, so the
+   Sage text and the soft Sage/Cream confetti would lose contrast against it.
+
+   This file adds a single translucent Cream veil ON TOP of that photo — a
+   `::after` pseudo-element filling the same fixed box — so the image still reads
+   clearly as a background while the text and confetti stay legible over it.
+
+   IMPORTANT — this veil must NOT hide the photo. It is deliberately translucent
+   (Cream-soft at ~0.8 alpha, matching the same translucent tone the even-section
+   banding uses), so the photograph shows through it across the whole page.
+
+   WHY A SEPARATE FILE. `src/index.css` is the shared theme sheet; the confetti
+   already establishes the pattern of colocating component-only styles next to
+   the component and importing them from the `.jsx`. This veil is only ever used
+   by the site background layer, so it lives here and is imported by
+   `SiteBackground.jsx`, leaving the shared sheet untouched.
+
+   COLOUR RULE (14.6). The veil is mixed from the `@theme` tokens in
+   `src/index.css` via `var(--color-*)` — no Palette hex literal appears here.
+
+   NO ANIMATION. This layer paints once and never moves, so it adds nothing to
+   the motion budget and needs no reduced-motion handling.
+   ========================================================================== */
+
+.site-bg-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* A gentle vertical Cream veil, kept translucent so the photo shows through
+     everywhere. `--color-cream-soft` at ~0.8 alpha is the same translucent tone
+     the even-section banding (`bg-cream-soft/80`) uses, so the two read as one
+     cohesive wash rather than fighting each other. Slightly lighter at the very
+     top where the hero copy sits, easing to the full 0.8 lower down. */
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-cream-soft) 72%, transparent) 0%,
+    color-mix(in srgb, var(--color-cream-soft) 78%, transparent) 40%,
+    color-mix(in srgb, var(--color-cream-soft) 80%, transparent) 100%
+  );
+  pointer-events: none;
+}

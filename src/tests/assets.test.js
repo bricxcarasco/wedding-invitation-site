@@ -19,15 +19,24 @@ import { describe, expect, it } from 'vitest'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ASSETS_DIR = resolve(HERE, '..', 'assets')
 const GALLERY_DIR = join(ASSETS_DIR, 'gallery')
+const IMAGES_DIR = join(ASSETS_DIR, 'images')
+
+// The one image that lives OUTSIDE the gallery folder: the hero section's
+// full-bleed background photo. It is not a gallery placeholder — it is the
+// page's backdrop — so it lives in its own `src/assets/images/` folder rather
+// than polluting the gallery folder's exact-contents contract above.
+const HERO_BACKGROUND = join(IMAGES_DIR, 'hero-bg.jpg')
 
 // Requirement 12.2. Binary KB, the stricter of the two readings.
 const MAX_IMAGE_BYTES = 300 * 1024
 
 const CREDITS_FILE = 'CREDITS.md'
 
-// Requirement 6.1's seven subjects, in the order the gallery renders them. The
-// filenames are contractual: the README's replacement procedure is
-// filename-for-filename, and `weddingConfig.js` imports each one by name.
+// The gallery images, in the order the gallery renders them. The first seven
+// are requirement 6.1's enumerated subjects; `08-first-dance.webp` is an extra
+// added so the grid tiles at an even count. The filenames are contractual: the
+// README's replacement procedure is filename-for-filename, and
+// `weddingConfig.js` imports each one by name.
 const EXPECTED_IMAGES = [
   '01-rings.webp',
   '02-couple-portrait.webp',
@@ -36,6 +45,7 @@ const EXPECTED_IMAGES = [
   '05-venue.webp',
   '06-outdoor-scenery.webp',
   '07-reception-details.webp',
+  '08-first-dance.webp',
 ]
 
 const EXPECTED_ENTRIES = [...EXPECTED_IMAGES, CREDITS_FILE].sort()
@@ -77,13 +87,13 @@ const galleryFiles = galleryEntries
 const galleryImages = galleryFiles.filter((name) => name !== CREDITS_FILE)
 
 describe('gallery asset folder', () => {
-  it('contains all seven expected placeholder filenames', () => {
+  it('contains all eight expected placeholder filenames', () => {
     for (const name of EXPECTED_IMAGES) {
       expect(galleryFiles, `${name} is missing from src/assets/gallery/`).toContain(name)
     }
   })
 
-  it('contains exactly the seven images and CREDITS.md, and nothing else', () => {
+  it('contains exactly the eight images and CREDITS.md, and nothing else', () => {
     // Requirement 6.2: one dedicated folder holding precisely the placeholders
     // and their provenance record. A stray export, an editor backup, or a
     // leftover PNG from a regeneration run all fail here.
@@ -137,20 +147,31 @@ describe('gallery asset folder', () => {
 })
 
 describe('image placement under src/assets/', () => {
-  it('keeps every image file inside src/assets/gallery/', () => {
+  it('keeps every image inside src/assets/gallery/, except the hero background', () => {
     // Requirement 6.2 again, from the other direction. The site ships one
     // self-hosted display webfont (Parisienne), but it lives in `public/fonts/`
     // (served verbatim), not under `src/assets/`, so this walk of `src/assets/`
     // still sees images only. Filtering to IMAGE extensions keeps it robust
     // regardless.
+    //
+    // The single sanctioned exception is the hero background photo in
+    // `src/assets/images/` — the page backdrop, deliberately kept out of the
+    // gallery folder. Any OTHER image outside the gallery folder is a stray.
     const strays = walk(ASSETS_DIR)
       .filter((file) => IMAGE_EXTENSIONS.has(extname(file).toLowerCase()))
       .filter((file) => dirname(file) !== GALLERY_DIR)
+      .filter((file) => file !== HERO_BACKGROUND)
       .map((file) => relative(ASSETS_DIR, file))
 
     expect(
       strays,
-      `image files outside src/assets/gallery/: ${strays.join(', ')}`,
+      `unexpected image files outside src/assets/gallery/: ${strays.join(', ')}`,
     ).toEqual([])
+  })
+
+  it('has the hero background photo at src/assets/images/hero-bg.jpg', () => {
+    const stats = statSync(HERO_BACKGROUND)
+    expect(stats.isFile(), 'src/assets/images/hero-bg.jpg should be a file').toBe(true)
+    expect(stats.size, 'hero-bg.jpg is empty').toBeGreaterThan(0)
   })
 })

@@ -161,7 +161,7 @@ The site is finished and deployable as-is. These are the things the couple is
 most likely to want to change, and each one is a **single edit** in
 `src/config/weddingConfig.js` or a filename-for-filename asset swap.
 
-- **Real photographs.** Replace the seven generated gallery placeholders with
+- **Real photographs.** Replace the eight generated gallery placeholders with
   real photos. See [The gallery replacement procedure](#the-gallery-replacement-procedure)
   below — no code change, just overwrite the files.
 - **Precise map links.** The two Google Maps links (`ceremony.mapsUrl` and
@@ -186,12 +186,13 @@ most likely to want to change, and each one is a **single edit** in
 ## The placeholder generator
 
 The gallery images are not stock photos — they are generated locally by
-`scripts/generate-placeholders.mjs`. It produces **seven palette-only WebP
+`scripts/generate-placeholders.mjs`. It produces **eight palette-only WebP
 compositions** (1200 × 800), each evoking its subject with the four wedding
 colours and a simple motif: concentric rings, two overlapping ellipses, a
-ceremony arch, radial petals, a horizon band, layered hills, and a table
-setting. They are **agent-generated with no third-party licence obligation** —
-nothing is downloaded or hotlinked (details in `src/assets/gallery/CREDITS.md`).
+ceremony arch, radial petals, a horizon band, layered hills, a table setting,
+and a first dance. They are **agent-generated with no third-party licence
+obligation** — nothing is downloaded or hotlinked (details in
+`src/assets/gallery/CREDITS.md`).
 
 Re-run the generator any time:
 
@@ -199,7 +200,7 @@ Re-run the generator any time:
 npm run placeholders   # runs node scripts/generate-placeholders.mjs
 ```
 
-It overwrites all seven files in place, so editing the palette or the motifs in
+It overwrites all eight files in place, so editing the palette or the motifs in
 the script and re-running is the intended way to restyle the placeholders.
 
 ---
@@ -220,13 +221,13 @@ One-line conversion with `cwebp`:
 cwebp -q 80 -resize 1200 800 input.jpg -o src/assets/gallery/01-rings.webp
 ```
 
-The seven filenames are: `01-rings.webp`, `02-couple-portrait.webp`,
+The eight filenames are: `01-rings.webp`, `02-couple-portrait.webp`,
 `03-ceremony.webp`, `04-flowers.webp`, `05-venue.webp`,
-`06-outdoor-scenery.webp`, `07-reception-details.webp`.
+`06-outdoor-scenery.webp`, `07-reception-details.webp`, `08-first-dance.webp`.
 
 ### Update the alt text
 
-The seven `alt` strings in `src/config/weddingConfig.js` currently describe the
+The eight `alt` strings in `src/config/weddingConfig.js` currently describe the
 **generated placeholders** (e.g. "Concentric sage and cream rings…"). When real
 photographs replace the files, rewrite each of those `alt` strings to describe
 the actual photograph. This is easy to forget because the image swap needs no
@@ -284,7 +285,7 @@ wedding-invitation/
 ├─ api/
 │  └─ rsvp.js                     # Vercel serverless function — receives RSVP submissions
 ├─ scripts/
-│  └─ generate-placeholders.mjs   # generates the seven gallery WebPs
+│  └─ generate-placeholders.mjs   # generates the eight gallery WebPs
 └─ src/
    ├─ config/
    │  └─ weddingConfig.js         # THE ONE FILE TO EDIT — names, dates, venues, copy, gallery
@@ -292,7 +293,8 @@ wedding-invitation/
    ├─ lib/                        # pure logic: countdown, icalendar, rsvp (fully unit + property tested)
    ├─ hooks/                      # useCountdown, useParallax, useScrollReveal, useReducedMotion
    ├─ motion/                     # reduced-motion source of truth + context
-   ├─ assets/gallery/             # the seven WebP images + CREDITS.md
+   ├─ assets/gallery/             # the eight WebP images + CREDITS.md
+   ├─ assets/images/              # hero-bg.jpg — the hero section background photo
    ├─ index.css                   # Tailwind theme, palette tokens, motion + reduced-motion rules
    └─ tests/                      # component and cross-cutting tests
 ```
@@ -318,5 +320,5 @@ If you only touch one file, make it `src/config/weddingConfig.js`.
 | `npm run lint` | Run ESLint across the project. |
 | `npm run test` | Run Vitest in watch mode. |
 | `npm run test:run` | Run the full test suite once and exit (use this for CI / a one-off check). |
-| `npm run placeholders` | Regenerate the seven gallery placeholder images. |
+| `npm run placeholders` | Regenerate the eight gallery placeholder images. |
 ```

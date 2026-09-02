@@ -1,4 +1,4 @@
-// The photo gallery: seven bundled placeholder images in a responsive grid.
+// The photo gallery: eight bundled placeholder images in a responsive grid.
 //
 // Requirements: 6.1 (seven subjects), 6.3 (served from the build output, no
 // external host), 6.4 (`loading="lazy"` plus explicit width/height), 6.5
@@ -12,7 +12,7 @@
 // DATA FLOW (14.6): every image, its alt text, and its dimensions come from
 // `weddingConfig.gallery`. This component restates none of them — it is the
 // first module to import the config's gallery array, which is what pulls the
-// seven .webp files into the Vite build graph so they appear in the output.
+// eight .webp files into the Vite build graph so they appear in the output.
 //
 // COORDINATION: this file renders its own `<section id="gallery">`. It does not
 // touch MainInvitation.jsx; a sibling task wires it into the slot.
@@ -25,7 +25,7 @@ import './Gallery.css'
  * Number of stagger steps defined in index.css (`.reveal-delay-1`…`-6`). The
  * per-image delay cycles 1→6 across the grid so a row lights up in sequence
  * rather than all at once, and the cycle keeps every value inside the range
- * `Reveal` accepts even though there are seven images.
+ * `Reveal` accepts even though there are eight images.
  */
 const STAGGER_STEPS = 6
 

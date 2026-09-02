@@ -19,6 +19,7 @@ import flowers from '../assets/gallery/04-flowers.webp'
 import venuePhoto from '../assets/gallery/05-venue.webp'
 import scenery from '../assets/gallery/06-outdoor-scenery.webp'
 import receptionDetails from '../assets/gallery/07-reception-details.webp'
+import firstDance from '../assets/gallery/08-first-dance.webp'
 
 /**
  * The Ceremony_Datetime as a fixed absolute instant, offset-anchored on purpose
@@ -195,6 +196,13 @@ const weddingConfig = {
       subject: 'reception-details',
       src: receptionDetails,
       alt: 'A table setting seen from above, its plates, glasses and places composed from circles in cream and silver gray.',
+      width: 1200,
+      height: 800,
+    },
+    {
+      subject: 'first-dance',
+      src: firstDance,
+      alt: 'Two soft sage and cream figures leaning into one another, framed by sweeping motion arcs and scattered points of light.',
       width: 1200,
       height: 800,
     },

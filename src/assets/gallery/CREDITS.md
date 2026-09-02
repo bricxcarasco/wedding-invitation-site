@@ -11,7 +11,7 @@ Cream `#ede0cd`, Silver Gray `#c0c0c0` — authored as SVG in that script and
 rasterised to WebP. They are committed to the repository and served from the
 Vite build output.
 
-Regenerate all seven at any time:
+Regenerate all eight at any time:
 
 ```bash
 npm run placeholders          # node scripts/generate-placeholders.mjs
@@ -31,8 +31,9 @@ palette or a motif and re-running is the supported way to change these images.
 | `05-venue.webp` | A horizon band under a low sun, with a colonnade on the skyline | Agent-generated palette placeholder — `scripts/generate-placeholders.mjs` | None required. No external source. |
 | `06-outdoor-scenery.webp` | Four layered hills receding into a pale sky | Agent-generated palette placeholder — `scripts/generate-placeholders.mjs` | None required. No external source. |
 | `07-reception-details.webp` | A table setting seen from above, arranged from circles | Agent-generated palette placeholder — `scripts/generate-placeholders.mjs` | None required. No external source. |
+| `08-first-dance.webp` | Two leaning figures framed by sweeping motion arcs and scattered glints | Agent-generated palette placeholder — `scripts/generate-placeholders.mjs` | None required. No external source. |
 
-All seven are WebP, 1200 × 800 (3:2), and well under the 300KB per-image cap.
+All eight are WebP, 1200 × 800 (3:2), and well under the 300KB per-image cap.
 
 ## Replacing these with real photographs
 

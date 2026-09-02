@@ -4,18 +4,18 @@
  *
  * WHAT THIS IS
  * ------------
- * A one-command, offline generator for the seven WebP files the Gallery renders
+ * A one-command, offline generator for the eight WebP files the Gallery renders
  * from `src/assets/gallery/`. Each composition is authored here as an SVG string
  * and rasterised to WebP with `sharp`. Run it with:
  *
  *     npm run placeholders          # or: node scripts/generate-placeholders.mjs
  *
- * Output: exactly seven files, each 1200 x 800 (3:2), well under the 300KB
+ * Output: exactly eight files, each 1200 x 800 (3:2), well under the 300KB
  * per-image cap of requirement 12.2:
  *
  *     01-rings.webp   02-couple-portrait.webp   03-ceremony.webp
  *     04-flowers.webp 05-venue.webp             06-outdoor-scenery.webp
- *     07-reception-details.webp
+ *     07-reception-details.webp                 08-first-dance.webp
  *
  * WHY GENERATED PLACEHOLDERS RATHER THAN STOCK PHOTOGRAPHY
  * --------------------------------------------------------
@@ -250,7 +250,7 @@ const document_ = ({ defs, body, label }) => `<svg xmlns="http://www.w3.org/2000
 </svg>`;
 
 // -----------------------------------------------------------------------------
-// The seven compositions
+// The eight compositions
 // -----------------------------------------------------------------------------
 
 /** 01 — concentric rings, with two emphasised bands reading as wedding bands. */
@@ -678,9 +678,83 @@ function composeReceptionDetails() {
   });
 }
 
+/** 08 — a first dance: two leaning figures inside sweeping motion arcs. */
+function composeFirstDance() {
+  const cx = WIDTH / 2
+  const cy = 360
+
+  // Two sweeping arcs around the couple, reading as the turn of a dance. Drawn
+  // as open circles clipped to nothing special — just concentric guide rings
+  // offset from centre so they feel like motion rather than a target.
+  const arcs = [
+    { r: 232, o: 0.16, w: 1, c: SAGE },
+    { r: 204, o: 0.34, w: 1.4, c: SILVER },
+    { r: 172, o: 0.22, w: 1, c: SAGE },
+  ]
+    .map(
+      ({ r, o, w, c }) =>
+        `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${n(r * 0.82)}" fill="none" ` +
+        `stroke="${c}" stroke-opacity="${o}" stroke-width="${w}" ` +
+        `transform="rotate(-12 ${cx} ${cy})" />`,
+    )
+    .join('\n      ')
+
+  // Two figures leaning into one another, mirrored, each a soft tapering body.
+  const left = cx - 58
+  const right = cx + 58
+  const figures = [
+    { fx: left, tilt: 14, fill: 'figA' },
+    { fx: right, tilt: -14, fill: 'figB' },
+  ]
+    .map(
+      ({ fx, tilt, fill }) =>
+        `<ellipse cx="${fx}" cy="${cy}" rx="66" ry="150" fill="url(#${fill})" ` +
+        `stroke="${CREAM}" stroke-opacity="0.4" stroke-width="1.4" ` +
+        `transform="rotate(${tilt} ${fx} ${cy})" />` +
+        `<circle cx="${fx}" cy="${cy - 150}" r="34" fill="url(#${fill})" ` +
+        `stroke="${CREAM}" stroke-opacity="0.4" stroke-width="1.4" ` +
+        `transform="rotate(${tilt} ${fx} ${cy})" />`,
+    )
+    .join('\n      ')
+
+  // A scatter of glints around the pair, the sparkle of a lit dance floor.
+  const glints = [
+    [312, 210, 5],
+    [904, 250, 6],
+    [268, 470, 4],
+    [940, 452, 5],
+    [cx, 150, 6],
+  ]
+    .map(
+      ([x, y, r]) =>
+        `<circle cx="${x}" cy="${y}" r="${r}" fill="${CREAM}" fill-opacity="0.9" ` +
+        `stroke="${SAGE_LIGHT}" stroke-opacity="0.8" stroke-width="1" />`,
+    )
+    .join('\n      ')
+
+  return document_({
+    label: 'FIRST DANCE',
+    defs:
+      wash({ id: 'a', color: SAGE_LIGHT, from: 0.36, to: 0.08, x1: 0, y1: 0, x2: 0.8, y2: 1 }) +
+      wash({ id: 'b', color: SILVER, from: 0.28, to: 0, x1: 1, y1: 0, x2: 0, y2: 0.6 }) +
+      glow({ id: 'c', color: CREAM, cx: 0.5, cy: 0.42, r: 0.52, from: 0.9, to: 0 }) +
+      glow({ id: 'figA', color: SAGE, cx: 0.44, cy: 0.24, r: 0.9, from: 0.32, to: 0.62 }) +
+      glow({ id: 'figB', color: SAGE_LIGHT, cx: 0.56, cy: 0.24, r: 0.9, from: 0.46, to: 0.9 }),
+    body: `${backdrop('a', 'b', 'c')}
+    <g>
+      ${arcs}
+      ${figures}
+      ${glints}
+    </g>`,
+  })
+}
+
 /**
- * The seven subjects requirement 6.1 enumerates, in gallery order. Filenames
- * carry the order prefix so the folder sorts the way the grid reads.
+ * The eight subjects the gallery renders, in gallery order. Filenames carry the
+ * order prefix so the folder sorts the way the grid reads. Seven cover
+ * requirement 6.1's enumerated subjects; `08-first-dance` was added to keep the
+ * grid an even count so it tiles cleanly at the two- and (mostly) three-column
+ * breakpoints.
  */
 const PLACEHOLDERS = [
   { file: '01-rings.webp', compose: composeRings },
@@ -690,6 +764,7 @@ const PLACEHOLDERS = [
   { file: '05-venue.webp', compose: composeVenue },
   { file: '06-outdoor-scenery.webp', compose: composeOutdoorScenery },
   { file: '07-reception-details.webp', compose: composeReceptionDetails },
+  { file: '08-first-dance.webp', compose: composeFirstDance },
 ];
 
 // -----------------------------------------------------------------------------

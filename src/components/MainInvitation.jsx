@@ -11,7 +11,7 @@
 //   1. the post-reveal scroll reset (1.6), and
 //   2. the post-reveal focus target.
 //
-// Everything else here is layout: the fixed decorative parallax layer (10.3),
+// Everything else here is layout: the fixed decorative background photo layer,
 // the `<main>` landmark, the section rhythm, and an ordered slot list that
 // tasks 7.1–7.12 fill in.
 //
@@ -27,6 +27,7 @@
 
 import { useEffect, useRef } from 'react'
 
+import { SiteBackground } from './SiteBackground.jsx'
 import { ParallaxLayer } from './ParallaxLayer.jsx'
 import { SiteConfetti } from './SiteConfetti.jsx'
 import { HeroConfetti } from './HeroConfetti.jsx'
@@ -52,9 +53,10 @@ import { AudioPlayer } from './AudioPlayer.jsx'
    Banding alternates transparent / translucent-Cream-soft rather than
    Cream / Cream-soft. `body` already paints Cream, so an "odd" section needs no
    background of its own — and leaving it transparent is what lets the fixed
-   ParallaxLayer and the fixed SiteConfetti show through (10.3).
+   SiteBackground photo and the fixed SiteConfetti show through.
 
-   The even-section band is deliberately TRANSLUCENT (`/80`), not opaque: an
+   The even-section band is deliberately TRANSLUCENT (`/80`), not opaque, so it
+   tints the background photo on alternating sections without hiding it: an
    opaque band would paint over the fixed confetti layer behind the content
    column and hide the drift on those sections. At 80% Cream-soft the banding
    still reads as a distinct surface while the confetti keeps drifting through
@@ -126,11 +128,23 @@ export function MainInvitation() {
 
   return (
     <>
-      {/* 10.3 — one fixed, `aria-hidden`, purely decorative parallax layer.
-          Outside `<main>` because it carries no content: it must not appear in
-          the main landmark's reading order. Neutralised under `reduce` by the
-          global media block in index.css and by `useParallax` attaching no
-          listener at all (10.6). */}
+      {/* The site-wide background photograph. One fixed, `aria-hidden`, purely
+          decorative full-viewport layer that stays put as the guest scrolls, so
+          the same photo backs every section. It carries a translucent Cream veil
+          (SiteBackground.css) so the content stays readable over it. Outside
+          `<main>` because it carries no content — it must not appear in the main
+          landmark's reading order. Replaces the former ParallaxLayer: an opaque
+          Cream-topped gradient wash would have painted over this photo, so the
+          drifting wash now sits over the photo as a faint, fully translucent
+          Sage depth tint (see ParallaxLayer) rather than an opaque Cream wash,
+          so the photo shows through it everywhere. */}
+      <SiteBackground />
+
+      {/* 10.3 — the fixed, `aria-hidden`, purely decorative parallax layer.
+          Its gradient is fully translucent (Sage tints, no opaque Cream), so it
+          drifts as a subtle depth wash OVER the background photo without hiding
+          it. Neutralised under `reduce` by the global media block in index.css
+          and by `useParallax` attaching no listener at all (10.6). */}
       <ParallaxLayer />
 
       {/* Site-wide falling confetti — a single fixed, full-viewport layer that
@@ -147,8 +161,8 @@ export function MainInvitation() {
       <AudioPlayer />
 
       {/* `relative z-10` keeps the whole content column above the fixed
-          decorative layer regardless of the stacking context ParallaxLayer
-          establishes for itself. */}
+          decorative layers (the SiteBackground photo and the SiteConfetti)
+          regardless of the stacking contexts they establish for themselves. */}
       <main className={`relative z-10 ${SECTION_RHYTHM}`}>
         {/* ==================================================================
             SLOT ORDER — scroll order is defined here and nowhere else.
@@ -170,7 +184,7 @@ export function MainInvitation() {
           id="hero"
           ref={focusRef}
           tabIndex={-1}
-          className="relative overflow-hidden"
+          className="relative min-h-screen overflow-hidden"
         >
           {/* Falling confetti behind the hero copy. First child so it paints
               underneath, clipped by this section's `overflow-hidden`, and held
