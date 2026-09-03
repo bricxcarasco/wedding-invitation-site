@@ -30,7 +30,6 @@ import { MotionProvider } from '../motion/MotionContext.jsx'
 import { Rsvp } from '../components/Rsvp.jsx'
 
 const FORM_NAME = weddingConfig.rsvp.formName
-const { minGuests: MIN_GUESTS, maxGuests: MAX_GUESTS } = weddingConfig.rsvp
 
 // The four field names the live form, the pure encoder, the index.html stub,
 // and the /api/rsvp endpoint must all agree on. Renaming one side alone breaks
@@ -91,13 +90,13 @@ describe('RSVP form fields (8.1)', () => {
     expect(values).toEqual([...ATTENDANCE_CHOICES].sort())
   })
 
-  it('renders guestCount as a required number field', () => {
+  it('does not render a guest-count control, and shows the no-plus-ones note instead', () => {
     renderRsvp()
-    const count = screen.getByLabelText(/how many in your party/i)
-    expect(count).toBeInstanceOf(HTMLInputElement)
-    expect(count).toHaveAttribute('type', 'number')
-    expect(count).toHaveAttribute('name', 'guestCount')
-    expect(count).toBeRequired()
+    // The counter was removed: the couple cannot accommodate plus ones, so
+    // every reply is exactly one guest. guestCount is pinned to 1 in the data
+    // model, but there is no on-screen control for it.
+    expect(screen.queryByLabelText(/how many in your party/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/unable to accommodate plus ones/i)).toBeInTheDocument()
   })
 
   it('renders message as an optional textarea', () => {
@@ -149,18 +148,25 @@ describe('hidden form-name agrees with the form and the index.html stub', () => 
     expect(stubHidden, 'the stub should carry a hidden form-name input').not.toBeNull()
     expect(stubHidden.getAttribute('value')).toBe(FORM_NAME)
 
-    // The four field names match, in the live form and in the stub.
-    const { container } = renderRsvp()
-    const liveForm = container.querySelector('form')
-
+    // The stub still declares all four wire field names — the endpoint and the
+    // encoder still carry `guestCount` (pinned to 1) so the wire contract is
+    // unchanged.
     for (const field of FIELD_NAMES) {
-      expect(
-        liveForm.querySelector(`[name="${field}"]`),
-        `live form is missing the ${field} control`,
-      ).not.toBeNull()
       expect(
         stubForm.querySelector(`[name="${field}"]`),
         `index.html stub is missing the ${field} control`,
+      ).not.toBeNull()
+    }
+
+    // The live form renders the visible fields. `guestCount` is intentionally
+    // absent from the DOM here (no plus ones), but is still submitted from the
+    // data model, so it is excluded from this DOM check.
+    const { container } = renderRsvp()
+    const liveForm = container.querySelector('form')
+    for (const field of FIELD_NAMES.filter((name) => name !== 'guestCount')) {
+      expect(
+        liveForm.querySelector(`[name="${field}"]`),
+        `live form is missing the ${field} control`,
       ).not.toBeNull()
     }
   })
@@ -187,7 +193,6 @@ describe('submit is disabled while the request is in flight (8.10)', () => {
 
     await user.type(screen.getByLabelText(/your name/i), 'Mae')
     await user.click(screen.getByRole('radio', { name: /joyfully accepts/i }))
-    await user.type(screen.getByLabelText(/how many in your party/i), '2')
 
     await user.click(submitButton())
 
@@ -220,7 +225,6 @@ describe('a successful submission replaces the fields with a thank-you (8.8)', (
 
     await user.type(screen.getByLabelText(/your name/i), 'Bricx')
     await user.click(screen.getByRole('radio', { name: /regretfully declines/i }))
-    await user.type(screen.getByLabelText(/how many in your party/i), '1')
 
     await user.click(submitButton())
 
@@ -252,10 +256,6 @@ const validNameArb = fc
   .map((s) => s.replace(/[{[]/g, ''))
   .map((s) => `Mae ${s}`.trim())
 
-/** guestCount within the configured inclusive range, as the string the number
- *  input holds. */
-const validCountArb = fc.integer({ min: MIN_GUESTS, max: MAX_GUESTS }).map((n) => String(n))
-
 /** An optional message, free of the userEvent metacharacters. */
 const messageArb = fc
   .string({ maxLength: 40 })
@@ -265,7 +265,6 @@ const messageArb = fc
 const validInputArb = fc.record({
   guestName: validNameArb,
   attendance: fc.constantFrom(...ATTENDANCE_CHOICES),
-  guestCount: validCountArb,
   message: messageArb,
 })
 
@@ -305,7 +304,6 @@ describe('Property 6: a failed submission preserves input and keeps submit enabl
 
         try {
           const nameInput = screen.getByLabelText(/your name/i)
-          const countInput = screen.getByLabelText(/how many in your party/i)
           const messageInput = screen.getByLabelText(/a note for us/i)
           const attendanceRadio = screen.getByRole('radio', {
             name: ATTENDANCE_RADIO_NAME[input.attendance],
@@ -313,7 +311,6 @@ describe('Property 6: a failed submission preserves input and keeps submit enabl
 
           await user.type(nameInput, input.guestName)
           await user.click(attendanceRadio)
-          await user.type(countInput, input.guestCount)
           if (input.message) await user.type(messageInput, input.message)
 
           // Submit and wait for the failure to surface as the alert.
@@ -334,9 +331,6 @@ describe('Property 6: a failed submission preserves input and keeps submit enabl
           // on input, but a trailing space typed then normalised by the browser
           // would still equal what we sent; here the raw value is retained.
           expect(screen.getByLabelText(/your name/i)).toHaveValue(input.guestName)
-          expect(screen.getByLabelText(/how many in your party/i)).toHaveValue(
-            Number(input.guestCount),
-          )
           expect(screen.getByLabelText(/a note for us/i)).toHaveValue(input.message)
 
           // The chosen attendance radio is still selected.

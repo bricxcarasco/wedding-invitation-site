@@ -27,6 +27,12 @@ const IMAGES_DIR = join(ASSETS_DIR, 'images')
 // than polluting the gallery folder's exact-contents contract above.
 const HERO_BACKGROUND = join(IMAGES_DIR, 'hero-bg.jpg')
 
+// The dress-code palette image, rendered by the DressCode section in place of
+// the old colour swatches. Like the hero background it is a page image, not a
+// gallery placeholder, so it lives in `src/assets/images/` and is a sanctioned
+// exception to the "images live in the gallery folder" rule below.
+const DRESS_CODE_IMAGE = join(IMAGES_DIR, 'dress-codes.png')
+
 // Requirement 12.2. Binary KB, the stricter of the two readings.
 const MAX_IMAGE_BYTES = 300 * 1024
 
@@ -161,6 +167,7 @@ describe('image placement under src/assets/', () => {
       .filter((file) => IMAGE_EXTENSIONS.has(extname(file).toLowerCase()))
       .filter((file) => dirname(file) !== GALLERY_DIR)
       .filter((file) => file !== HERO_BACKGROUND)
+      .filter((file) => file !== DRESS_CODE_IMAGE)
       .map((file) => relative(ASSETS_DIR, file))
 
     expect(

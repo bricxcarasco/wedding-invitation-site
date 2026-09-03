@@ -46,11 +46,19 @@ const ATTENDANCE_LABELS = {
   'not-attending': 'Regretfully declines',
 }
 
-/** The empty starting values — every field controlled from the first render. */
+/**
+ * The empty starting values — every field controlled from the first render.
+ *
+ * `guestCount` is fixed at '1' and no longer has a control in the form: the
+ * couple cannot accommodate plus ones, so every reply represents exactly one
+ * guest. The value is still carried in the data model so validation, the
+ * URL-encoded body, the `/api/rsvp` endpoint, and the Google Sheet columns are
+ * all unchanged — only the on-screen counter is gone, replaced by a note.
+ */
 const EMPTY_VALUES = {
   guestName: '',
   attendance: '', // no default selection, so "unset" (8.5) is a reachable state
-  guestCount: '',
+  guestCount: '1',
   message: '',
 }
 
@@ -81,13 +89,14 @@ export function Rsvp() {
   // handler, never in the JSX.
   const guestNameRef = useRef(null)
   const attendanceRef = useRef(null)
-  const guestCountRef = useRef(null)
   const alertRef = useRef(null)
 
+  // `guestCount` has no control anymore (it is fixed at 1), so it has no ref
+  // here. It also can never fail validation while pinned to '1', so the focus
+  // lookup below never needs to find it.
   const fieldRefByName = {
     guestName: guestNameRef,
     attendance: attendanceRef,
-    guestCount: guestCountRef,
   }
 
   const submitting = status === 'submitting'
@@ -274,38 +283,14 @@ export function Rsvp() {
           ) : null}
         </fieldset>
 
-        {/* guestCount — required number 1-10 (8.1, 8.6). Required
-            unconditionally; the helper copy is the mitigation for a declining
-            guest, not a conditional. */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="rsvp-guestCount" className="font-medium text-sage-deep">
-            How many in your party?
-          </label>
-          <span id="rsvp-guestCount-hint" className="text-sm text-sage-deep/80">
-            Enter 1 if you are replying only for yourself.
-          </span>
-          <input
-            id="rsvp-guestCount"
-            ref={guestCountRef}
-            type="number"
-            name="guestCount"
-            required
-            min={weddingConfig.rsvp.minGuests}
-            max={weddingConfig.rsvp.maxGuests}
-            value={values.guestCount}
-            onChange={(event) => updateField('guestCount', event.target.value)}
-            aria-invalid={errors.guestCount ? true : undefined}
-            aria-describedby={
-              errors.guestCount ? 'rsvp-guestCount-hint guestCount-error' : 'rsvp-guestCount-hint'
-            }
-            className="control tap-target rounded-lg border border-sage-light/60 bg-cream-soft px-4"
-          />
-          {errors.guestCount ? (
-            <p id="guestCount-error" className="text-sm text-sage-deep">
-              {errors.guestCount}
-            </p>
-          ) : null}
-        </div>
+        {/* No guest-count control: the couple cannot accommodate plus ones, so
+            every reply is exactly one guest. `guestCount` stays pinned to '1'
+            in the data model (see EMPTY_VALUES) so the wire body, the endpoint,
+            and the sheet are unchanged. This note replaces the old counter. */}
+        <p className="rounded-lg border border-sage-light/50 bg-cream-soft/70 px-4 py-3 text-sm leading-relaxed text-sage-deep">
+          Due to limited space, we are unable to accommodate plus ones. We hope
+          you understand and will still join us to celebrate!
+        </p>
 
         {/* message — optional textarea (8.1) */}
         <div className="flex flex-col gap-2">
