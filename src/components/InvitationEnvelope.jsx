@@ -89,7 +89,7 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
   // Idle motion is opt-in, not opt-out: these stay empty under `reduce` so no
   // element is left carrying a suspended animation (1.8).
   const envelopeIdle = !reduced && !opening ? ' envelope--idle' : ''
-  const captionIdle = !reduced && !opening ? ' gate__caption--idle' : ''
+  const captionIdle = !reduced && !opening ? ' gate__cta--idle' : ''
 
   // The opening class the CSS score hangs off. Without this the flap and card
   // keyframes (scoped under `.envelope--opening`) never match anything, which
@@ -107,6 +107,112 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
           animated without repainting the gradients underneath it. */}
       <div className="gate__ground absolute inset-0" aria-hidden="true" />
       <div className="gate__vignette absolute inset-0" aria-hidden="true" />
+
+      {/* Decorative botanical frame — a responsive double-line border in Sage
+          (rgb(85,112,95) === var(--color-sage)) with botanical accents at two
+          corners: a small floral spray at the top-right and a leaf spray at the
+          bottom-left, echoing the reference art. Purely ornamental: it is
+          `aria-hidden`, click-through (so a tap still opens the envelope), and
+          scales fluidly with the viewport via clamped insets. The accents are
+          inline SVG so they read as real flowers/leaves rather than stray
+          strokes. */}
+      <div className="gate__frame absolute inset-0" aria-hidden="true">
+        <span className="gate__frame-line gate__frame-line--outer" />
+        <span className="gate__frame-line gate__frame-line--inner" />
+
+        {/* Top-right: flowers */}
+        <svg
+          className="gate__accent gate__accent--tr"
+          viewBox="0 0 120 120"
+          fill="none"
+          aria-hidden="true"
+        >
+          {/* stems */}
+          <path
+            d="M96 104 C 92 78, 84 56, 70 40"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.55"
+          />
+          <path
+            d="M96 104 C 100 82, 104 64, 100 44"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.55"
+          />
+          <path
+            d="M96 104 C 96 84, 96 70, 96 60"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.55"
+          />
+          {/* small leaf on a stem */}
+          <path
+            d="M88 74 C 80 70, 74 72, 72 78 C 80 82, 86 80, 88 74 Z"
+            fill="currentColor"
+            opacity="0.5"
+          />
+          {/* Flower 1 — five petals + center */}
+          <g className="gate__flower" transform="translate(70 38)">
+            <g fill="currentColor" opacity="0.85">
+              <ellipse cx="0" cy="-9" rx="4.6" ry="8" />
+              <ellipse cx="8.6" cy="-2.8" rx="4.6" ry="8" transform="rotate(72)" />
+              <ellipse cx="5.3" cy="7.3" rx="4.6" ry="8" transform="rotate(144)" />
+              <ellipse cx="-5.3" cy="7.3" rx="4.6" ry="8" transform="rotate(216)" />
+              <ellipse cx="-8.6" cy="-2.8" rx="4.6" ry="8" transform="rotate(288)" />
+            </g>
+            <circle cx="0" cy="0" r="3.4" fill="currentColor" />
+          </g>
+          {/* Flower 2 — smaller */}
+          <g className="gate__flower" transform="translate(101 42) scale(0.7)">
+            <g fill="currentColor" opacity="0.8">
+              <ellipse cx="0" cy="-9" rx="4.6" ry="8" />
+              <ellipse cx="8.6" cy="-2.8" rx="4.6" ry="8" transform="rotate(72)" />
+              <ellipse cx="5.3" cy="7.3" rx="4.6" ry="8" transform="rotate(144)" />
+              <ellipse cx="-5.3" cy="7.3" rx="4.6" ry="8" transform="rotate(216)" />
+              <ellipse cx="-8.6" cy="-2.8" rx="4.6" ry="8" transform="rotate(288)" />
+            </g>
+            <circle cx="0" cy="0" r="3.4" fill="currentColor" />
+          </g>
+          {/* a tiny bud */}
+          <circle cx="96" cy="58" r="3.2" fill="currentColor" opacity="0.7" />
+        </svg>
+
+        {/* Bottom-left: leaves */}
+        <svg
+          className="gate__accent gate__accent--bl"
+          viewBox="0 0 120 120"
+          fill="none"
+          aria-hidden="true"
+        >
+          {/* main stem */}
+          <path
+            d="M18 14 C 26 40, 34 64, 40 96"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.6"
+          />
+          {/* pairs of leaves along the stem */}
+          <g fill="currentColor" opacity="0.7">
+            <path d="M24 34 C 14 30, 8 34, 8 44 C 20 46, 26 42, 24 34 Z" />
+            <path d="M27 34 C 37 28, 44 30, 46 40 C 34 44, 28 42, 27 34 Z" />
+            <path d="M31 56 C 21 52, 15 56, 15 66 C 27 68, 33 64, 31 56 Z" />
+            <path d="M34 56 C 44 50, 51 52, 53 62 C 41 66, 35 64, 34 56 Z" />
+            <path d="M37 78 C 27 74, 21 78, 21 88 C 33 90, 39 86, 37 78 Z" />
+            <path d="M40 78 C 50 72, 57 74, 59 84 C 47 88, 41 86, 40 78 Z" />
+          </g>
+          {/* leaf tip at the top of the stem */}
+          <path
+            d="M18 14 C 12 20, 12 28, 18 32 C 24 28, 24 20, 18 14 Z"
+            fill="currentColor"
+            opacity="0.7"
+          />
+        </svg>
+      </div>
 
       {/* The continuously moving ambient element of 1.2 — floating motes over
           the Palette gradient. Omitted entirely under `reduce` (1.8): the
@@ -162,20 +268,22 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
           </span>
         </span>
 
-        {/* The instruction of 1.3, worded exactly as specified. Set in the
-            display face at the 16px body floor (11.5) with wide tracking, over
-            a hairline rule and a small Sage lozenge — the same letterpress
-            vocabulary as the envelope, and still not a word of wedding data. */}
+        {/* The instruction of 1.3. The single native <button> above is still
+            the one focusable activation surface (a tap anywhere on the gate
+            opens it, 1.5/1.7), so this "OPEN INVITATION" element is a styled
+            *visual* button rather than a second focusable control — it inherits
+            the real button's click and keyboard behaviour for free while giving
+            the pill look and the smooth hover/tap animation requested. The
+            small line beneath it explains the gesture. Still no wedding data
+            (1.4). */}
         <span className="gate__caption flex flex-col items-center gap-3">
-          <span className="flex items-center gap-3" aria-hidden="true">
-            <span className="h-px w-10 bg-sage/30 sm:w-14" />
-            <span className="size-1.5 rotate-45 bg-sage/45" />
-            <span className="h-px w-10 bg-sage/30 sm:w-14" />
-          </span>
           <span
-            className={`font-display-serif text-base leading-none tracking-[0.4em] text-sage-deep uppercase${captionIdle}`}
+            className={`gate__cta font-display-serif text-base leading-none tracking-[0.32em] text-cream-soft uppercase${captionIdle}`}
           >
-            Tap to Open
+            Open Invitation
+          </span>
+          <span className="gate__cta-hint font-body text-xs tracking-[0.12em] text-sage-deep/70">
+            Tap to reveal your invitation
           </span>
         </span>
       </button>

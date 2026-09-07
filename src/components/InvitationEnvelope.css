@@ -330,9 +330,7 @@
   animation: envelope-float 6.5s ease-in-out infinite;
 }
 
-.gate__caption--idle {
-  animation: gate-caption-breathe 3.6s ease-in-out infinite;
-}
+
 
 @keyframes envelope-float {
   0%,
@@ -341,16 +339,6 @@
   }
   50% {
     transform: translate3d(0, -7px, 0);
-  }
-}
-
-@keyframes gate-caption-breathe {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
   }
 }
 
@@ -559,5 +547,156 @@
   }
   100% {
     opacity: 0;
+  }
+}
+
+/* --- Decorative botanical frame ----------------------------------------
+   A responsive double-line border in Sage, echoing the reference artwork:
+   two thin rectangles very slightly rotated against each other, with small
+   leaf/blossom sprigs at two opposing corners. Every colour is the Sage
+   token (rgb(85,112,95) === var(--color-sage)); no Palette hex is written
+   here (14.6). The whole layer is decorative — `aria-hidden` in the markup —
+   and click-through so a tap anywhere still opens the envelope (1.7).
+
+   Responsive: the frame insets and stroke are clamped to the viewport, so the
+   border hugs the screen sensibly from a 320px phone up to a wide desktop
+   without ever touching the envelope in the centre. */
+.gate__frame {
+  pointer-events: none;
+  /* Fluid margin from the viewport edge: tighter on phones, roomier on large
+     screens, always leaving the central envelope clear. */
+  --frame-inset: clamp(14px, 4.5vmin, 46px);
+}
+
+.gate__frame-line {
+  position: absolute;
+  inset: var(--frame-inset);
+  border: 1px solid var(--color-sage);
+  border-radius: 2px;
+}
+
+/* Two concentric lines — a fainter outer line and a crisper inner one — kept
+   strictly parallel (no rotation). The earlier counter-rotation made the two
+   rectangles diverge at the corners, which showed up as stray diagonal stubs;
+   removing it leaves one clean double frame, and the botanical accents below
+   are what dress the corners. */
+.gate__frame-line--outer {
+  inset: calc(var(--frame-inset) - 4px);
+  border-color: color-mix(in srgb, var(--color-sage) 40%, transparent);
+}
+
+.gate__frame-line--inner {
+  border-color: color-mix(in srgb, var(--color-sage) 72%, transparent);
+}
+
+/* Corner botanical accents — inline SVG flowers (top-right) and leaves
+   (bottom-left), tinted Sage via `currentColor`. Sized in vmin so they scale
+   with the frame, and tucked just inside the corner of the inner frame line so
+   they sit ON the border like the reference art. Kept modest so they never
+   crowd the centred envelope. */
+.gate__accent {
+  position: absolute;
+  /* Sized off `vmax` (the LARGER viewport dimension) rather than `vmin`. On a
+     portrait phone `vmin` tracks the narrow width and collapses the accents to
+     the floor, making them look tiny; `vmax` tracks the tall height, so they
+     stay generously sized on mobile while still scaling on desktop. A higher
+     floor keeps them comfortably large on very small screens. */
+  inline-size: clamp(96px, 18vmax, 150px);
+  block-size: clamp(96px, 18vmax, 150px);
+  color: var(--color-sage);
+  overflow: visible;
+}
+
+/* On narrow phones, give the accents a touch more presence still. */
+@media (max-width: 480px) {
+  .gate__accent {
+    inline-size: clamp(104px, 26vw, 150px);
+    block-size: clamp(104px, 26vw, 150px);
+  }
+}
+
+.gate__accent--tr {
+  /* Anchor near the top-right corner of the frame. */
+  top: calc(var(--frame-inset) - 6px);
+  right: calc(var(--frame-inset) - 6px);
+}
+
+.gate__accent--bl {
+  /* Anchor near the bottom-left corner; the leaf SVG is authored growing from
+     its top-left, so flip it so the spray grows up from the corner. */
+  bottom: calc(var(--frame-inset) - 6px);
+  left: calc(var(--frame-inset) - 6px);
+  transform: scaleY(-1);
+}
+
+/* --- The "OPEN INVITATION" call-to-action ------------------------------- */
+/* A styled visual button. The real activation surface is the single native
+   <button> that wraps the whole gate (1.5/1.7/11.4), so this element takes no
+   focus of its own — it inherits click, Enter, Space and the focus ring from
+   the button above, which is what keeps the gate's focusable-element count at
+   exactly one. It looks and animates like a pill button: a filled Sage lozenge
+   that lifts and brightens on hover and settles on tap.
+
+   Animated properties are transform and box-shadow only, via a single
+   `transition`; no layout property moves, so it stays inside the motion budget.
+   Height clears the 44px tap floor. */
+.gate__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 44px;
+  padding: 0 clamp(22px, 6vw, 34px);
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--color-sage-light) 30%, var(--color-sage)) 0%,
+    var(--color-sage) 55%,
+    var(--color-sage-deep) 100%
+  );
+  box-shadow:
+    0 10px 22px -12px color-mix(in srgb, var(--color-sage-deep) 82%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 26%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 220ms ease;
+  will-change: transform;
+}
+
+/* Hover: a gentle lift with a stronger shadow — the "smooth animation". The
+   whole gate is one button, so this fires from anywhere on the artwork, which
+   reads as the whole invitation responding. */
+.gate__button:hover .gate__cta {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 16px 30px -12px color-mix(in srgb, var(--color-sage-deep) 88%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 34%, transparent);
+}
+
+/* Active/press: settle back down for tactile feedback. */
+.gate__button:active .gate__cta {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 90ms;
+}
+
+/* The small gesture hint under the button. */
+.gate__cta-hint {
+  line-height: 1.4;
+}
+
+/* Idle breathing for the CTA while the gate rests (opt-in; the component omits
+   this class under reduced motion, 1.8). A soft pulse of the lift, distinct
+   from the old opacity breathe so the filled pill never looks like it is
+   fading out. */
+.gate__cta--idle {
+  animation: gate-cta-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes gate-cta-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.02);
   }
 }

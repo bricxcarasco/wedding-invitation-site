@@ -59,8 +59,9 @@ describe('envelope gate — closed state (1.3, 1.4)', () => {
     renderWithMotion(<App />)
   })
 
-  it('shows the "Tap to Open" instruction (1.3)', () => {
-    expect(screen.getByText('Tap to Open')).toBeInTheDocument()
+  it('shows the "Open Invitation" call-to-action and gesture hint (1.3)', () => {
+    expect(screen.getByText('Open Invitation')).toBeInTheDocument()
+    expect(screen.getByText('Tap to reveal your invitation')).toBeInTheDocument()
   })
 
   it('leaks no config-owned wedding string while closed (1.4)', () => {
