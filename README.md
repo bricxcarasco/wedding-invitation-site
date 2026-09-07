@@ -1,7 +1,7 @@
 # Bricx &amp; Mae — Wedding Invitation
 
 A one-page wedding invitation website for **Bricx &amp; Mae**, celebrating their
-wedding on **February 13, 2027** in Pagsanjan, Laguna. It opens with a tap-to-open
+wedding on **February 6, 2027** in Pagsanjan, Laguna. It opens with a tap-to-open
 envelope, then reveals a hero, a live countdown, the ceremony and reception
 details with an add-to-calendar button, the couple's story, a photo gallery,
 venue map links, dress-code guidance, and an RSVP form. It is built with

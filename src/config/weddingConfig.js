@@ -27,7 +27,7 @@ import firstDance from '../assets/gallery/08-first-dance.webp'
  * time, so every runtime derives the same epoch value regardless of host
  * timezone. Edit this one string to move the wedding.
  */
-export const CEREMONY_DATETIME = '2027-02-13T11:00:00+08:00'
+export const CEREMONY_DATETIME = '2027-02-06T14:00:00+08:00'
 
 /** The Palette. Four entries, each a name and a #rrggbb value. (14.4, 7.2, 7.3) */
 export const palette = [
@@ -81,8 +81,8 @@ const weddingConfig = {
   // 14.2
   schedule: {
     ceremonyDatetime: CEREMONY_DATETIME,
-    displayDate: 'February 13, 2027',
-    displayTime: '11:00 AM',
+    displayDate: 'February 6, 2027',
+    displayTime: '2:00 PM',
   },
 
   // 14.3 — one venue name and one Google Maps URL per venue. See mapsSearchUrl
@@ -101,7 +101,7 @@ const weddingConfig = {
     // reception group (not `schedule`, which anchors the ceremony instant the
     // countdown and the .ics file are built from) because it is a display-only
     // time for the reception card and drives no date arithmetic.
-    displayTime: '2:00 PM',
+    displayTime: '4:00 PM',
   },
 
   palette,

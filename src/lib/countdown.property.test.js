@@ -322,10 +322,10 @@ describe('Property 1: Countdown breakdown is well-formed', () => {
   //
   // This is here because the run above cannot reach the day-of-month clamp, and
   // that is worth stating plainly rather than leaving as a coverage gap. The
-  // Ceremony_Datetime falls on the 13th of February. The month anchor always
+  // Ceremony_Datetime falls on the 6th of February. The month anchor always
   // lands on the observed instant's own day-of-month in either January or
   // February 2027, and whenever that day is the 29th, 30th or 31st the clamped
-  // February anchor (the 28th) overshoots the 13th, so the correction loop steps
+  // February anchor (the 28th) overshoots the 6th, so the correction loop steps
   // back to January — where no clamping applies. The clamp is therefore
   // unreachable with this particular target, and an implementation that dropped
   // it entirely would satisfy the run above. Verified by mutation: a no-clamp
@@ -581,10 +581,10 @@ describe('Property 2: Countdown is timezone-invariant', () => {
   })
 
   it('anchors the Ceremony_Datetime to +08:00 rather than to the host zone', () => {
-    // 2027-02-13 11:00 +08:00 is 2027-02-13 03:00 UTC. `Date.UTC` reads no local
+    // 2027-02-06 14:00 +08:00 is 2027-02-06 06:00 UTC. `Date.UTC` reads no local
     // field, so this equality is the same in every host timezone — and it is
     // what makes the subtraction inside `breakdown` timezone-free to begin with.
-    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 13, 3, 0, 0))
+    expect(CEREMONY_MS).toBe(Date.UTC(2027, 1, 6, 6, 0, 0))
     expect(phtOffsetMsAt(CEREMONY_MS)).toBe(PHT_OFFSET_MS)
   })
 })
