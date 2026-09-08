@@ -97,6 +97,28 @@
     color-mix(in srgb, var(--color-cream-soft) 60%, transparent);
 }
 
+/* --- Drifting botanicals (leaves, flowers, rings) ----------------------- */
+/* The larger SVG particles that rise alongside the motes. They REUSE the shared
+   `ambient-drift` loop from index.css (rise up the viewport, fade in then out)
+   rather than defining their own, so the whole field moves as one — but unlike
+   `.ambient` they are NOT forced into a round dot with a background fill, so the
+   leaf/flower/ring silhouettes are preserved. `currentColor` on the glyphs is
+   tinted here to Sage so they read as foliage over the Cream ground. Purely
+   decorative and click-through; the component drops the entire field (motes and
+   these) under reduced motion, so no hidden animation is left running (1.8). */
+.gate__floater {
+  position: absolute;
+  color: color-mix(in srgb, var(--color-sage) 88%, var(--color-sage-deep));
+  pointer-events: none;
+  opacity: 0;
+  overflow: visible;
+  will-change: transform, opacity;
+  filter: drop-shadow(
+    0 1px 4px color-mix(in srgb, var(--color-sage-deep) 22%, transparent)
+  );
+  animation: ambient-drift 20s linear infinite;
+}
+
 /* --- Activation surface (1.5, 1.7, 10.4, 11.4) -------------------------- */
 /* `.control` in index.css supplies the ≥44×44 floor, the hover lift, and the
    Sage `:focus-visible` ring. This adds only what is specific to the gate. */
@@ -273,6 +295,42 @@
   box-shadow: inset 0 2px 0 color-mix(in srgb, white 40%, transparent);
 }
 
+/* --- The logo on the flap ----------------------------------------------- */
+/* The wedding monogram, centred within the flap's downward triangle and
+   sitting above the seal. It is NOT clipped by the flap (it is a separate layer
+   over it), so it reads crisply. Width is a fraction of the envelope, so it
+   scales fluidly with the artwork on every screen; `top` places its centre in
+   the upper part of the triangle, clear of both the top edge and the V-point
+   seam where the seal sits. Purely decorative and click-through. */
+.envelope__logo {
+  position: absolute;
+  z-index: 5;
+  /* Fraction of the envelope width — clamped so it never gets lost on a small
+     phone nor overwhelms the flap on a wide desktop. Sized generously so the
+     monogram fills the flap and reads clearly. */
+  inline-size: clamp(120px, 46%, 220px);
+  block-size: auto;
+  /* Centre horizontally; sit in the middle of the flap triangle, above the
+     seal (which is centred on the 72% seam). */
+  left: 50%;
+  top: 34%;
+  transform: translate(-50%, -50%);
+  transform-origin: top center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* The monogram is Sage green on a Sage flap, so a plain shadow is not enough
+     separation. A soft cream halo behind the strokes lifts it off the flap and
+     makes it legible, then a deeper drop-shadow grounds it. Two stacked
+     drop-shadows: the first is the light halo, the second the depth. */
+  filter: drop-shadow(
+      0 0 6px color-mix(in srgb, var(--color-cream-soft) 92%, white)
+    )
+    drop-shadow(
+      0 2px 5px color-mix(in srgb, var(--color-sage-deep) 40%, transparent)
+    );
+}
+
 /* --- The seal ----------------------------------------------------------- */
 /* Wax, not a monogram: a domed Sage disc with a highlight and an engraved ring.
    Sits on the flap point; travels and fades with the flap on open. */
@@ -413,6 +471,17 @@
     envelope-seal-fade 460ms ease-out 100ms forwards;
 }
 
+/* The logo rides the flap open on the same top hinge, then fades — mirroring
+   the seal. Its centring `translate(-50%, -50%)` is folded into the keyframe so
+   the rotateX does not clobber it. z-index drops below the card like the flap
+   so the risen letter passes in front. */
+.envelope--opening .envelope__logo {
+  z-index: 0;
+  animation: envelope-logo-open 1050ms cubic-bezier(0.4, 0, 0.2, 1) 100ms
+    forwards,
+    envelope-seal-fade 460ms ease-out 100ms forwards;
+}
+
 /* BEAT 2 — the letter slides up out of the pocket, smoothly. Lifted to z 4 for
    the sequence so it rides in front of the body. Starts as the flap finishes,
    with a long soft-landing tail. */
@@ -464,6 +533,17 @@
   }
   100% {
     transform: rotateX(-165deg);
+  }
+}
+
+/* The logo opens on the flap's top hinge like the seal, but keeps its centring
+   translate so it does not jump to the corner as it rotates. */
+@keyframes envelope-logo-open {
+  0% {
+    transform: translate(-50%, -50%) rotateX(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateX(-165deg);
   }
 }
 

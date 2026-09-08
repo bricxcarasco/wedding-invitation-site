@@ -37,6 +37,8 @@
 
 import { useMotion } from '../motion/context.js'
 
+import logo from '../assets/images/TransparentWeddingLogo(Green).png'
+
 import './InvitationEnvelope.css'
 
 // Ten ambient motes — inside the eight-to-twelve band of 1.2. Hand-placed
@@ -51,17 +53,110 @@ import './InvitationEnvelope.css'
 // keeps the group from ever resynchronising into a visible pulse. `.ambient` in
 // index.css supplies the shared `ambient-drift` loop these values modulate.
 const MOTES = [
-  { left: '7%', bottom: '-4%', size: 7, delay: '0ms', duration: '15s' },
-  { left: '17%', bottom: '13%', size: 4, delay: '2400ms', duration: '19s' },
-  { left: '27%', bottom: '-8%', size: 10, delay: '5200ms', duration: '13s' },
-  { left: '38%', bottom: '6%', size: 5, delay: '1100ms', duration: '21s' },
-  { left: '47%', bottom: '-6%', size: 6, delay: '7600ms', duration: '16s' },
-  { left: '57%', bottom: '17%', size: 3, delay: '3300ms', duration: '23s' },
-  { left: '67%', bottom: '-3%', size: 8, delay: '9800ms', duration: '14s' },
-  { left: '76%', bottom: '10%', size: 5, delay: '600ms', duration: '18s' },
-  { left: '85%', bottom: '-7%', size: 7, delay: '6400ms', duration: '20s' },
-  { left: '93%', bottom: '4%', size: 4, delay: '4100ms', duration: '17s' },
+  { left: '5%', bottom: '-4%', size: 7, delay: '0ms', duration: '15s' },
+  { left: '12%', bottom: '13%', size: 4, delay: '2400ms', duration: '19s' },
+  { left: '19%', bottom: '-8%', size: 10, delay: '5200ms', duration: '13s' },
+  { left: '25%', bottom: '6%', size: 5, delay: '1100ms', duration: '21s' },
+  { left: '31%', bottom: '-6%', size: 6, delay: '7600ms', duration: '16s' },
+  { left: '37%', bottom: '17%', size: 3, delay: '3300ms', duration: '23s' },
+  { left: '43%', bottom: '-3%', size: 8, delay: '9800ms', duration: '14s' },
+  { left: '49%', bottom: '10%', size: 5, delay: '600ms', duration: '18s' },
+  { left: '55%', bottom: '-7%', size: 7, delay: '6400ms', duration: '20s' },
+  { left: '61%', bottom: '4%', size: 4, delay: '4100ms', duration: '17s' },
+  { left: '67%', bottom: '-5%', size: 9, delay: '8700ms', duration: '15s' },
+  { left: '73%', bottom: '15%', size: 4, delay: '1900ms', duration: '22s' },
+  { left: '79%', bottom: '-9%', size: 6, delay: '5900ms', duration: '13s' },
+  { left: '85%', bottom: '8%', size: 8, delay: '3600ms', duration: '19s' },
+  { left: '90%', bottom: '-4%', size: 5, delay: '10400ms', duration: '16s' },
+  { left: '95%', bottom: '12%', size: 7, delay: '7000ms', duration: '21s' },
+  { left: '9%', bottom: '22%', size: 5, delay: '11200ms', duration: '18s' },
+  { left: '46%', bottom: '26%', size: 4, delay: '2800ms', duration: '24s' },
+  { left: '82%', bottom: '24%', size: 6, delay: '9100ms', duration: '20s' },
+  { left: '58%', bottom: '-10%', size: 9, delay: '4700ms', duration: '14s' },
 ]
+
+// The larger drifting botanicals — leaves, five-petal flowers, and wedding
+// rings — that rise up the screen alongside the small motes. Same
+// `ambient-drift` rise-and-fade loop (reused via `.gate__floater` in the CSS),
+// but each is inline SVG so it reads as a real leaf / bloom / ring rather than
+// a dot. `type` selects which glyph to draw; `rotate` gives each a resting
+// tilt so the field does not look stamped; sizes are larger than the motes so
+// they carry visual weight. Hand-placed and fixed like MOTES so the scatter is
+// reviewable and stable across mounts. Omitted entirely under reduced motion
+// with the rest of the field (1.8).
+const FLOATERS = [
+  { type: 'leaf', left: '10%', bottom: '-6%', size: 26, rotate: -18, delay: '400ms', duration: '22s' },
+  { type: 'flower', left: '22%', bottom: '10%', size: 30, rotate: 12, delay: '6200ms', duration: '26s' },
+  { type: 'ring', left: '33%', bottom: '-8%', size: 24, rotate: -8, delay: '3100ms', duration: '24s' },
+  { type: 'leaf', left: '44%', bottom: '4%', size: 22, rotate: 26, delay: '9400ms', duration: '20s' },
+  { type: 'flower', left: '54%', bottom: '-9%', size: 34, rotate: -14, delay: '1500ms', duration: '28s' },
+  { type: 'leaf', left: '64%', bottom: '14%', size: 28, rotate: 8, delay: '7800ms', duration: '23s' },
+  { type: 'ring', left: '74%', bottom: '-5%', size: 26, rotate: 16, delay: '4300ms', duration: '25s' },
+  { type: 'flower', left: '84%', bottom: '8%', size: 28, rotate: -22, delay: '10800ms', duration: '27s' },
+  { type: 'leaf', left: '92%', bottom: '-7%', size: 24, rotate: 20, delay: '2600ms', duration: '21s' },
+  { type: 'ring', left: '16%', bottom: '20%', size: 22, rotate: -12, delay: '8500ms', duration: '24s' },
+  { type: 'flower', left: '48%', bottom: '24%', size: 26, rotate: 18, delay: '5000ms', duration: '29s' },
+  { type: 'leaf', left: '80%', bottom: '22%', size: 26, rotate: -26, delay: '11600ms', duration: '22s' },
+]
+
+// The three drifting botanical glyphs, drawn in `currentColor` so the CSS tints
+// them. Each is authored in a 24×24 box centred on (12,12).
+const FLOATER_GLYPHS = {
+  // A single leaf with a centre vein.
+  leaf: (
+    <>
+      <path
+        d="M12 2 C 4 6, 3 15, 6 21 C 15 20, 21 12, 12 2 Z"
+        fill="currentColor"
+        opacity="0.85"
+      />
+      <path
+        d="M9 18 C 10 13, 12 8, 14 5"
+        stroke="var(--color-cream-soft)"
+        strokeWidth="1"
+        strokeLinecap="round"
+        opacity="0.6"
+        fill="none"
+      />
+    </>
+  ),
+  // A five-petal blossom with a centre.
+  flower: (
+    <g transform="translate(12 12)">
+      <g fill="currentColor" opacity="0.9">
+        <ellipse cx="0" cy="-6.5" rx="3.1" ry="5.6" />
+        <ellipse cx="6.2" cy="-2" rx="3.1" ry="5.6" transform="rotate(72)" />
+        <ellipse cx="3.8" cy="5.3" rx="3.1" ry="5.6" transform="rotate(144)" />
+        <ellipse cx="-3.8" cy="5.3" rx="3.1" ry="5.6" transform="rotate(216)" />
+        <ellipse cx="-6.2" cy="-2" rx="3.1" ry="5.6" transform="rotate(288)" />
+      </g>
+      <circle cx="0" cy="0" r="2.4" fill="var(--color-cream-soft)" opacity="0.85" />
+    </g>
+  ),
+  // A pair of interlocking wedding rings.
+  ring: (
+    <>
+      <circle
+        cx="9"
+        cy="13"
+        r="6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        opacity="0.9"
+      />
+      <circle
+        cx="15"
+        cy="11"
+        r="6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        opacity="0.9"
+      />
+    </>
+  ),
+}
 
 /**
  * The closed-envelope landing state.
@@ -234,6 +329,36 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
               }}
             />
           ))}
+
+          {/* The larger drifting botanicals — leaves, flowers and rings —
+              rising alongside the motes. They reuse the same `ambient-drift`
+              loop via `.gate__floater` (which does NOT force the round-dot
+              shape/background that `.ambient` does), so they float up and fade
+              exactly like the dots but keep their SVG silhouette. */}
+          {FLOATERS.map((floater) => (
+            <svg
+              key={floater.type + floater.left + floater.delay}
+              className="gate__floater"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+              style={{
+                left: floater.left,
+                bottom: floater.bottom,
+                width: `${floater.size}px`,
+                height: `${floater.size}px`,
+                animationDelay: floater.delay,
+                animationDuration: floater.duration,
+              }}
+            >
+              {/* Resting tilt applied INSIDE the SVG (via an SVG transform on a
+                  group centred on the 24×24 box), so the element-level CSS
+                  `transform` that `ambient-drift` animates does not clobber it. */}
+              <g transform={`rotate(${floater.rotate} 12 12)`}>
+                {FLOATER_GLYPHS[floater.type]}
+              </g>
+            </svg>
+          ))}
         </div>
       )}
 
@@ -263,6 +388,19 @@ export default function InvitationEnvelope({ phase = 'closed', onOpen }) {
             {/* The top flap: a downward triangle hinged at its top edge. It
                 rotates open (backward) and drops behind the letter. */}
             <span className="envelope__flap" />
+            {/* The wedding logo/monogram, centred on the flap triangle above
+                the seal. Decorative (`aria-hidden`) and click-through so a tap
+                anywhere still opens the envelope (1.7). It rides and fades with
+                the flap on open via the `.envelope--opening` rules in the CSS.
+                Sized fluidly against the envelope width so it stays centred and
+                proportional from a 320px phone up to desktop. */}
+            <img
+              className="envelope__logo"
+              src={logo}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+            />
             {/* Wax seal on the flap. */}
             <span className="envelope__seal" />
           </span>

@@ -33,6 +33,19 @@ const HERO_BACKGROUND = join(IMAGES_DIR, 'hero-bg.jpg')
 // exception to the "images live in the gallery folder" rule below.
 const DRESS_CODE_IMAGE = join(IMAGES_DIR, 'dress-codes.png')
 
+// The wedding logo/monogram, rendered centred on the envelope flap by
+// InvitationEnvelope. Like the hero background and the dress-code image it is a
+// page image, not a gallery placeholder, so it lives in `src/assets/images/`
+// and is a sanctioned exception to the "images live in the gallery folder"
+// rule below.
+const WEDDING_LOGO = join(IMAGES_DIR, 'TransparentWeddingLogo(Green).png')
+
+// The plain wedding logo/monogram, rendered centred above the couple names in
+// the Hero. Same category as the other page images above — a page image, not a
+// gallery placeholder — so it lives in `src/assets/images/` and is a sanctioned
+// exception to the "images live in the gallery folder" rule below.
+const WEDDING_LOGO_PLAIN = join(IMAGES_DIR, 'TransparentWeddingLogoPlain(Green).png')
+
 // Requirement 12.2. Binary KB, the stricter of the two readings.
 const MAX_IMAGE_BYTES = 300 * 1024
 
@@ -168,6 +181,8 @@ describe('image placement under src/assets/', () => {
       .filter((file) => dirname(file) !== GALLERY_DIR)
       .filter((file) => file !== HERO_BACKGROUND)
       .filter((file) => file !== DRESS_CODE_IMAGE)
+      .filter((file) => file !== WEDDING_LOGO)
+      .filter((file) => file !== WEDDING_LOGO_PLAIN)
       .map((file) => relative(ASSETS_DIR, file))
 
     expect(
