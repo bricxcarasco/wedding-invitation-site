@@ -570,7 +570,7 @@
     transform: translate3d(0, 14%, 0) scale(1);
   }
   100% {
-    transform: translate3d(0, -118%, 0) scale(1.04);
+    transform: translate3d(0, -68%, 0) scale(1.04);
   }
 }
 
