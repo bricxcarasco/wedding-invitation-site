@@ -92,7 +92,7 @@ describe('components restate no config-owned literal (requirement 14.6)', () => 
   // config, not a "#rrggbb" literal — so scanning for the literal hex strings
   // is correct and does not false-positive on that legitimate usage.
   const FORBIDDEN_LITERALS = [
-    ['couple display names', 'Bricx & Mae'],
+    ['couple display names', 'Bricx & Hannah'],
     ['groom name', 'Bricx Carasco'],
     ['bride name', 'Giohannah Mae Manambit'],
     ['display date', 'February 6, 2027'],

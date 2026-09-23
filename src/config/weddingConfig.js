@@ -73,9 +73,13 @@ const weddingConfig = {
   couple: {
     groomName: 'Bricx Carasco',
     brideName: 'Giohannah Mae Manambit',
-    displayNames: 'Bricx & Mae',
-    // Kept short on purpose: it sits on one line under "Bricx & Mae" at 320px.
+    displayNames: 'Bricx & Hannah',
+    // Kept short on purpose: it sits on one line under "Bricx & Hannah" at 320px.
     tagline: 'One promise, and every day after.',
+    // Wedding hashtags. `hashtag` shows in the hero (under the date); `hashtagAlt`
+    // shows in the closing footer. Owned here so no component restates them (14.6).
+    hashtag: '#itinadHANNAHsiBRICXparakayMAE',
+    hashtagAlt: '#BRICXandHANNAHwillgetMAErried',
   },
 
   // 14.2
@@ -235,7 +239,7 @@ const weddingConfig = {
   // `buildCeremonyEvent()` reads `ceremony.venueName`, so the venue string
   // exists exactly once in the repository (14.6, 9.3).
   calendar: {
-    summary: 'Wedding of Bricx & Mae',
+    summary: 'Wedding of Bricx & Hannah',
     description: 'We would love to have you with us.',
     durationMinutes: 90,
   },

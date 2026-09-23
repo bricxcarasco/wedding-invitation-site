@@ -34,7 +34,7 @@ import { Reveal } from './Reveal.jsx'
  * no raw hex anywhere (14.6).
  */
 export function Footer() {
-  const { displayNames } = weddingConfig.couple
+  const { displayNames, hashtagAlt } = weddingConfig.couple
   const { displayDate } = weddingConfig.schedule
 
   return (
@@ -42,6 +42,10 @@ export function Footer() {
       <p className="text-lg italic text-sage md:text-xl">
         We cannot wait to celebrate with you.
       </p>
+      {/* Wedding hashtag, beneath the closing sentiment. Same body font/italic
+          as the sentiment line above. Value read from Wedding_Config so it is
+          never restated here (14.6). */}
+      <p className="mt-3 text-lg italic text-sage md:text-xl">{hashtagAlt}</p>
       <p className="mt-6 font-display text-3xl text-sage-deep md:text-4xl">
         {displayNames}
       </p>

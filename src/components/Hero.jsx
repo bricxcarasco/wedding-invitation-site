@@ -163,10 +163,11 @@ export function Hero() {
         </h1>
       </Reveal>
 
-      {/* Line 2 — romantic tagline (2.3). Smallest of the three lines, in the
-          body face, in Sage so it recedes gently beneath the names. */}
+      {/* Line 2 — romantic tagline (2.3). In the body face and Sage so it
+          recedes gently beneath the names. Sized a step up from the base per
+          the couple's request, while staying below the date. */}
       <Reveal delay={3}>
-        <p className="mt-6 max-w-2xl text-lg font-light italic leading-relaxed text-sage sm:text-xl">
+        <p className="mt-6 max-w-2xl text-xl font-light italic leading-relaxed text-sage sm:text-2xl">
           {couple.tagline}
         </p>
       </Reveal>
@@ -177,6 +178,16 @@ export function Hero() {
       <Reveal delay={4}>
         <p className="mt-10 font-display-serif text-3xl font-normal uppercase tracking-[0.2em] text-sage-deep sm:text-4xl md:text-5xl">
           {schedule.displayDate}
+        </p>
+      </Reveal>
+
+      {/* Line 4 — the wedding hashtag, beneath the date. Set in the body face,
+          italic, in Sage (matching the closing sentiment line's font family) so
+          it reads as a playful signature rather than competing with the date
+          plate. Value comes from Wedding_Config (14.6). */}
+      <Reveal delay={5}>
+        <p className="mt-4 text-lg italic text-sage sm:text-xl">
+          {couple.hashtag}
         </p>
       </Reveal>
     </div>
