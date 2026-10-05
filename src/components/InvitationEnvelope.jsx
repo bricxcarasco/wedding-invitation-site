@@ -37,7 +37,7 @@
 
 import { useMotion } from '../motion/context.js'
 
-import logo from '../assets/images/TransparentWeddingLogo(Green).png'
+import logo from '../assets/images/wedding-logo.png'
 
 import './InvitationEnvelope.css'
 

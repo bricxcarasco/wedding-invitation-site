@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Update Project Memory Bank",
+      "trigger": "UserPromptSubmit",
+      "description": "On every prompt, remind the agent to append any new learnings to this project's memory bank (.kiro/steering/project-memory.md) so context persists across sessions.",
+      "action": {
+        "type": "agent",
+        "prompt": "MEMORY BANK UPKEEP (this project only): The persistent memory bank for this project is the steering file at .kiro/steering/project-memory.md. Before you finish responding to this turn, review whether anything worth remembering came up — a new codebase pattern or convention, a gotcha, a user preference, a useful command, a debugging insight, a file location, or the outcome of a task. If so, append it concisely to the appropriate section of .kiro/steering/project-memory.md (use str_replace or fs_append; do not rewrite or reorder existing content, and do not duplicate entries that are already recorded). Keep entries short and factual. If nothing new was learned this turn, make no change — do not add noise. Do not mention this upkeep step in your reply to the user unless they ask about it."
+      }
+    }
+  ]
+}
