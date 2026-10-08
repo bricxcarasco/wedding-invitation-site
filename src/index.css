@@ -298,6 +298,76 @@
     border-radius: 2px;
   }
 
+  /* --- Entourage toggle: glossy shimmer sweep ---------------------------- */
+  /* The "The Entourage" disclosure button. It reuses `.control` / `.tap-target`
+     for the shared hover-lift, hit area and focus ring, and adds a periodic
+     light sweep that glides across the face. The sweep rides an `::after`
+     pseudo-element (no extra markup) and animates only transform + opacity, so
+     it stays compositor-only and inside the motion budget.
+
+     `overflow: hidden` clips the diagonal highlight to the pill; `isolate`
+     keeps the overlay in its own stacking context so it never rises over
+     neighbouring content. */
+  .entourage-toggle {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* The highlight itself: a soft Cream gradient band, tilted and parked just
+     off the left edge at rest, that sweeps across and fades out on a gentle
+     loop. `mix-blend-mode: screen` makes it read as light passing over the
+     Sage face rather than a solid stripe. */
+  .entourage-toggle::after {
+    content: "";
+    position: absolute;
+    inset: -40% -20%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      var(--color-cream-soft) 50%,
+      transparent 65%
+    );
+    opacity: 0;
+    transform: translateX(-120%) rotate(0deg);
+    mix-blend-mode: screen;
+    animation: entourage-shimmer 3s ease-in-out infinite;
+  }
+
+  /* Keep the label above the sweep. */
+  .entourage-toggle > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* --- Entourage disclosure panel: smooth collapse ----------------------- */
+  /* The cinematic reveal. Collapsing height is animated with the
+     grid-template-rows 0fr→1fr technique: the panel is a one-row grid whose row
+     track grows from 0fr (closed) to 1fr (open), which the browser can
+     transition smoothly with no JS measuring. Opacity fades in tandem for a
+     softer entrance, and the inner wrapper clips its overflow so the content
+     never spills while the track is still growing. */
+  .entourage-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 650ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 650ms ease-out;
+  }
+
+  .entourage-panel--open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .entourage-panel__inner {
+    overflow: hidden;
+    min-block-size: 0;
+  }
+
   /* --- Visually hidden --------------------------------------------------- */
   /* For content that must reach assistive technology but not the visual layout:
      the countdown's non-live prose summary, the "(opens in a new tab)" note on
@@ -337,6 +407,29 @@
   }
   100% {
     transform: translate3d(-6px, -90vh, 0) scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* The glossy light sweep for `.entourage-toggle::after`. The highlight starts
+   parked off the left, glides across the button, and fades — then rests
+   invisibly for the rest of the cycle so the shimmer reads as an occasional,
+   premium glint rather than a constant stripe. Transform and opacity only, so
+   it runs entirely on the compositor. */
+@keyframes entourage-shimmer {
+  0% {
+    transform: translateX(-120%) rotate(8deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.65;
+  }
+  40% {
+    transform: translateX(120%) rotate(8deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(120%) rotate(8deg);
     opacity: 0;
   }
 }
@@ -407,6 +500,16 @@
   .control-btn:active::after {
     animation: none !important;
   } /* 10.6 */
+  /* The entourage button's glossy sweep stops entirely; the disclosure panel
+     snaps open/closed with no height animation (the toggle stays fully
+     functional, just instant). */
+  .entourage-toggle::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+  .entourage-panel {
+    transition: none !important;
+  }
 }
 
 /* ==========================================================================

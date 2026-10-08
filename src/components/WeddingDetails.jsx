@@ -22,6 +22,66 @@ import weddingConfig from '../config/weddingConfig.js'
 import { AddToCalendarButton } from './AddToCalendarButton.jsx'
 import { Reveal } from './Reveal.jsx'
 
+/* --------------------------------------------------------------------------
+   Button icons
+
+   Inline SVGs following the same convention as the rest of the site
+   (AudioPlayer's NoteIcon): `viewBox="0 0 24 24"`, `fill="none"`,
+   `stroke="currentColor"` so they inherit the button's Cream text colour,
+   rounded caps/joins, `aria-hidden` (the label and the visually-hidden span
+   already carry the accessible name), and `h-5 w-5` so they sit at the cap
+   height of the `text-xl` label. The flex `gap` on the button spaces them from
+   the text.
+   -------------------------------------------------------------------------- */
+
+/** A simple church: a pitched roof with a cross above a doorway. */
+function ChurchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="block h-5 w-5 flex-none"
+    >
+      {/* cross on the steeple */}
+      <path d="M12 2v4M10.5 3.5h3" />
+      {/* roof */}
+      <path d="M4 11l8-5 8 5" />
+      {/* walls + base */}
+      <path d="M6 10v10h12V10" />
+      {/* arched doorway */}
+      <path d="M10 20v-4a2 2 0 0 1 4 0v4" />
+    </svg>
+  )
+}
+
+/** A reception/venue: a building with a tented marquee roof and a doorway. */
+function ReceptionIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="block h-5 w-5 flex-none"
+    >
+      {/* scalloped marquee roofline */}
+      <path d="M3 9c1.5 0 1.5-2 3-2s1.5 2 3 2 1.5-2 3-2 1.5 2 3 2 1.5-2 3-2 1.5 2 3 2" />
+      {/* walls + base */}
+      <path d="M5 9v11h14V9" />
+      {/* doorway */}
+      <path d="M10 20v-5a2 2 0 0 1 4 0v5" />
+    </svg>
+  )
+}
+
 /**
  * One detail card. Rendered as the `Reveal` element itself (`as="article"`) so
  * the scroll-reveal wraps the semantic card directly, with no extra layout box
@@ -44,9 +104,10 @@ import { Reveal } from './Reveal.jsx'
  * @param {string} props.mapLabel the fixed map-link label (4.4 / 4.5)
  * @param {string} props.mapsUrl  the Maps URL, from config
  * @param {string} [props.time]   the displayed time, ceremony only
+ * @param {import('react').ReactNode} [props.icon] leading SVG icon for the map link
  * @param {number} [props.delay]  stagger step forwarded to `Reveal`
  */
-function DetailCard({ label, venue, mapLabel, mapsUrl, time, delay }) {
+function DetailCard({ label, venue, mapLabel, mapsUrl, time, icon, delay }) {
   return (
     <Reveal
       as="article"
@@ -60,8 +121,9 @@ function DetailCard({ label, venue, mapLabel, mapsUrl, time, delay }) {
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="control control-btn tap-target mt-6 self-start rounded-full border border-sage bg-sage px-6 font-display text-xl text-cream"
+        className="control control-btn tap-target mt-6 gap-2 self-start rounded-full border border-sage bg-sage px-6 font-display text-xl text-cream"
       >
+        {icon}
         {mapLabel}
         <span className="visually-hidden">{`: ${venue} (opens in a new tab)`}</span>
       </a>
@@ -89,6 +151,7 @@ export function WeddingDetails() {
             venue={ceremony.venueName}
             mapLabel="View Ceremony Location"
             mapsUrl={ceremony.mapsUrl}
+            icon={<ChurchIcon />}
             delay={1}
           />
           <DetailCard
@@ -97,6 +160,7 @@ export function WeddingDetails() {
             venue={reception.venueName}
             mapLabel="View Reception Location"
             mapsUrl={reception.mapsUrl}
+            icon={<ReceptionIcon />}
             delay={2}
           />
         </div>

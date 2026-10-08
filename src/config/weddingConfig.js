@@ -145,6 +145,144 @@ const weddingConfig = {
     verseReference: '1 Corinthians 13:4-7',
   },
 
+  /**
+   * The wedding entourage, in the exact ceremonial order the couple requested.
+   * Held here (14.6) so the `Entourage` section never hard-codes a name — swap
+   * a placeholder for a real name and nothing else in the repository changes.
+   *
+   * Shape mirrors how the section groups them on screen:
+   *   - `parents`        → two side-by-side groups (groom / bride), each a list
+   *                        of { role, name } rows.
+   *   - `principalSponsors` → ninongs / ninangs, two columns of plain names.
+   *   - `honorAttendants`   → best man / maid of honor, two { role, name } rows.
+   *   - `weddingParty`      → groomsmen / bridesmaids, two columns of names.
+   *   - `secondarySponsors` → one list of names.
+   *   - `candleVeilSponsors`→ candle / veil, two side-by-side name lists.
+   *   - `cordSponsors`      → one list of names.
+   *   - `bearers`           → ring / coin, two { role, name } rows.
+   *
+   * Every value below is a placeholder in `[...]` form on purpose; replace the
+   * bracketed text with the real names when they are confirmed.
+   */
+  entourage: {
+    parents: {
+      groom: {
+        title: 'Parents of the Groom',
+        members: [
+          { role: 'Father of the Groom', name: "[Father's Name]" },
+          { role: 'Mother of the Groom', name: "[Mother's Name]" },
+        ],
+      },
+      bride: {
+        title: 'Parents of the Bride',
+        members: [
+          { role: 'Father of the Bride', name: "[Father's Name]" },
+          { role: 'Mother of the Bride', name: "[Mother's Name]" },
+        ],
+      },
+    },
+    principalSponsors: {
+      title: 'Principal Sponsors',
+      ninongs: {
+        title: 'Ninongs',
+        names: [
+          '[Ninong 1]',
+          '[Ninong 2]',
+          '[Ninong 3]',
+          '[Ninong 4]',
+          '[Ninong 5]',
+          '[Ninong 6]',
+          '[Ninong 7]',
+          '[Ninong 8]',
+          '[Ninong 9]',
+          '[Ninong 10]',
+        ],
+      },
+      ninangs: {
+        title: 'Ninangs',
+        names: [
+          '[Ninang 1]',
+          '[Ninang 2]',
+          '[Ninang 3]',
+          '[Ninang 4]',
+          '[Ninang 5]',
+          '[Ninang 6]',
+          '[Ninang 7]',
+          '[Ninang 8]',
+          '[Ninang 9]',
+          '[Ninang 10]',
+        ],
+      },
+    },
+    honorAttendants: {
+      members: [
+        { role: 'Best Man', name: "[Best Man's Name]" },
+        { role: 'Maid of Honor', name: "[Maid of Honor's Name]" },
+      ],
+    },
+    weddingParty: {
+      groomsmen: {
+        title: 'Groomsmen',
+        names: [
+          '[Groomsman 1]',
+          '[Groomsman 2]',
+          '[Groomsman 3]',
+          '[Groomsman 4]',
+          '[Groomsman 5]',
+          '[Groomsman 6]',
+          '[Groomsman 7]',
+          '[Groomsman 8]',
+          '[Groomsman 9]',
+          '[Groomsman 10]',
+        ],
+      },
+      bridesmaids: {
+        title: 'Bridesmaids',
+        names: [
+          '[Bridesmaid 1]',
+          '[Bridesmaid 2]',
+          '[Bridesmaid 3]',
+          '[Bridesmaid 4]',
+          '[Bridesmaid 5]',
+          '[Bridesmaid 6]',
+          '[Bridesmaid 7]',
+          '[Bridesmaid 8]',
+          '[Bridesmaid 9]',
+          '[Bridesmaid 10]',
+        ],
+      },
+    },
+    secondarySponsors: {
+      title: 'Secondary Sponsors',
+      names: [
+        '[Secondary Sponsor 1]',
+        '[Secondary Sponsor 2]',
+        '[Secondary Sponsor 3]',
+        '[Secondary Sponsor 4]',
+      ],
+    },
+    candleVeilSponsors: {
+      candle: {
+        title: 'Candle Sponsors',
+        names: ['[Candle Sponsor 1]', '[Candle Sponsor 2]'],
+      },
+      veil: {
+        title: 'Veil Sponsors',
+        names: ['[Veil Sponsor 1]', '[Veil Sponsor 2]'],
+      },
+    },
+    cordSponsors: {
+      title: 'Cord Sponsors',
+      names: ['[Cord Sponsor 1]', '[Cord Sponsor 2]'],
+    },
+    bearers: {
+      members: [
+        { role: 'Ring Bearer', name: '[Ring Bearer Name]' },
+        { role: 'Coin Bearer', name: '[Coin Bearer Name]' },
+      ],
+    },
+  },
+
   dressCode: {
     // 7.1 — semi-formal / garden-formal, phrased as an invitation rather than a
     // rule list. It points at the four swatches DressCode renders beside this

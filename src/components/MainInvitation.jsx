@@ -33,6 +33,7 @@ import { SiteConfetti } from './SiteConfetti.jsx'
 import { HeroConfetti } from './HeroConfetti.jsx'
 import { Hero } from './Hero.jsx'
 import { Countdown } from './Countdown.jsx'
+import { Entourage } from './Entourage.jsx'
 import { WeddingDetails } from './WeddingDetails.jsx'
 import { OurStory } from './OurStory.jsx'
 import { Gallery } from './Gallery.jsx'
@@ -200,6 +201,10 @@ export function MainInvitation() {
         </section>
 
         <Countdown />
+
+        {/* The Entourage toggle + collapsible list, placed above #details and
+            after #countdown (per the screenshot's position between them). */}
+        <Entourage />
 
         <WeddingDetails />
 

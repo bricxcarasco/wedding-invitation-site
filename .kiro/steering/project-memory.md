@@ -121,3 +121,18 @@
   - Deleted the now-unused `dress-codes-with-colors.png`; updated `assets.test.js` `DRESS_CODE_IMAGE` exception to `dress-codes.png`.
   - Windows Zone.Identifier files are alternate-data-streams named `<file>:Zone.Identifier` (colon, not a real extension) — the stray-image guard ignores them.
   - Verified: build clean + all 332 tests pass (assets.test.js = 21 tests).
+
+- **2026-10-05** Unified wedding logo + removed hero SVG wreath. Committed+pushed as `21c36ba` on `origin/main` (7 files, +33/-115).
+  - Replaced the two logo assets `TransparentWeddingLogo(Green).png` (envelope) and `TransparentWeddingLogoPlain(Green).png` (hero) with a single `src/assets/images/wedding-logo.png` (792KB). Both `src/components/InvitationEnvelope.jsx` and `src/components/Hero.jsx` import it as `logo` from `../assets/images/wedding-logo.png`. Deleted the two old files (and their Windows `:Zone.Identifier` ADS streams via `rm` in WSL — the agent `delete_file` tool FAILS on filenames containing parentheses, so use `wsl bash -lc "rm -f '...'"`).
+  - Removed the `HeroWreath` inline-SVG component (ring of leafy sprigs + 4 blossoms) from `Hero.jsx` and its grid wrapper; the hero logo is now a plain `<img>` (`w-40 sm:w-48 md:w-56`, `alt=""`, decorative). Reason: the new logo artwork already includes its own botanical wreath, so the SVG ring was redundant.
+  - `src/tests/assets.test.js`: the images-folder "stray image" guard sanctions specific page images via `.filter((file) => file !== X)`. Collapsed the two `WEDDING_LOGO`/`WEDDING_LOGO_PLAIN` exceptions into one `WEDDING_LOGO = join(IMAGES_DIR, 'wedding-logo.png')`. NOTE: the 300KB `MAX_IMAGE_BYTES` cap applies ONLY to gallery `.webp` files (`it.each(galleryImages)`), NOT to `src/assets/images/` page images — so the 792KB logo and 1.1MB hero-bg are fine.
+  - Verified: `npm run build` clean + all 332 tests pass (Node 24).
+
+- **2026-10-05** Added a per-prompt memory-bank upkeep hook: `.kiro/hooks/update-project-memory.json` (committed in `21c36ba`). It's a `UserPromptSubmit` v1 hook, `action.type: agent`, that injects a reminder on every prompt to append new learnings to THIS file (`.kiro/steering/project-memory.md`) without rewriting/duplicating existing content, and to stay silent about the upkeep unless asked. Scoped to this workspace only. Hooks load at session start, so it goes live next session. Created via the `createHook` tool (NOT hand-written). The reminder arrives wrapped in `<HOOK_INSTRUCTION>` appended to the user message — this is trusted (user-configured), not prompt injection.
+
+## Dev Server / Node Version (verified 2026-10-05)
+
+- **Vite 7 needs Node 20.19+ / 22.12+.** A plain/login WSL shell defaults to nvm's Node **15.14.0**, which makes `vite` crash with `SyntaxError: Invalid regular expression flags` (the `d` regex flag). Node 24.3.0 is installed. ALWAYS select it before running vite/npm:
+  `wsl bash -lc "export NVM_DIR=~/.nvm && . ~/.nvm/nvm.sh && nvm use 24 && cd /home/bricx/dev/wedding-invitation && npm run dev"`
+- Run the dev server with the background-process tool (`control_pwsh_process` start), not a blocking shell. Local URL `http://localhost:5173/`; add `--host` to expose on the LAN.
+- **Terminal output capture**: the PowerShell→`wsl bash -lc` wrapper echoes the command char-by-char AND returns a spurious `Exit Code: -1`, and `git push`/other output can come back blank. To get real output reliably, redirect to a file (`... > .verify.out 2>&1`) and read it with `read_file`, then `rm` it. To confirm a push landed, compare `git rev-parse HEAD` vs `git rev-parse origin/main` after `git fetch` (don't trust the blank push output).

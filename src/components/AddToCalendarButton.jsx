@@ -19,6 +19,39 @@
 import { buildCeremonyEvent, downloadIcs } from '../lib/icalendar.js'
 
 /**
+ * A calendar glyph: a page with a top binding and a marked date.
+ *
+ * Same convention as the site's other inline icons (AudioPlayer's NoteIcon,
+ * the map-link icons in WeddingDetails): `viewBox="0 0 24 24"`, `fill="none"`,
+ * `stroke="currentColor"` so it inherits the button's Cream text, rounded
+ * caps/joins, `aria-hidden` (the label carries the name), and `h-5 w-5` so it
+ * sits at the cap height of the `text-xl` label.
+ */
+function CalendarIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="block h-5 w-5 flex-none"
+    >
+      {/* page */}
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      {/* binding rings */}
+      <path d="M8 3v4M16 3v4" />
+      {/* header rule */}
+      <path d="M3 10h18" />
+      {/* marked date */}
+      <path d="M12 14v3M10.5 15.5h3" />
+    </svg>
+  )
+}
+
+/**
  * A button that generates and downloads the ceremony as an `.ics` file.
  *
  * `type="button"` keeps it from submitting any form it may later be nested in.
@@ -31,9 +64,10 @@ export function AddToCalendarButton() {
   return (
     <button
       type="button"
-      className="control control-btn tap-target rounded-full border border-sage bg-sage px-6 font-display text-xl text-cream"
+      className="control control-btn tap-target gap-2 rounded-full border border-sage bg-sage px-6 font-display text-xl text-cream"
       onClick={handleClick}
     >
+      <CalendarIcon />
       Add to Calendar
     </button>
   )
