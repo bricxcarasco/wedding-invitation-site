@@ -29,24 +29,45 @@
       The ceremony date and the venue names are omitted here because
       requirement 1.4 forbids them being readable before the envelope is
       opened, and this markup ships in the static document.
-      No og:image, no external font, no third-party tag: the initial request
-      set stays HTML + CSS + JS (requirement 12.1).
+
+      The share image is the couple's wedding logo (no date, no venue), so it
+      carries nothing requirement 1.4 forbids before the envelope is opened. It
+      is served from /public at a stable, unhashed root path so Facebook's
+      crawler can fetch it at an absolute URL (a bundled src/ asset would get a
+      hashed, unpredictable path the crawler cannot rely on). og:image MUST be
+      an absolute URL, so the production domain is written out in full here.
     -->
     <meta
       name="description"
       content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bricxhannah-wedding.vercel.app/" />
     <meta property="og:title" content="Bricx &amp; Hannah — Wedding Invitation" />
     <meta
       property="og:description"
       content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
     />
-    <meta name="twitter:card" content="summary" />
+    <meta
+      property="og:image"
+      content="https://bricxhannah-wedding.vercel.app/share-card.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1254" />
+    <meta property="og:image:height" content="1254" />
+    <meta
+      property="og:image:alt"
+      content="The wedding logo of Bricx &amp; Hannah."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Bricx &amp; Hannah — Wedding Invitation" />
     <meta
       name="twitter:description"
       content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
+    />
+    <meta
+      name="twitter:image"
+      content="https://bricxhannah-wedding.vercel.app/share-card.png"
     />
   </head>
   <body>
