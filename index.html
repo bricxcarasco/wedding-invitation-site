@@ -4,6 +4,61 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!--
+      Share-card metadata, placed FIRST in <head> on purpose. Some link-preview
+      generators (notably Messenger's on-device preview for end-to-end-encrypted
+      chats, which builds the card on the phone rather than on Facebook's
+      servers) read only the first slice of <head> and skip pages where the
+      tags sit far down. Keeping them ahead of the comments, font preload and
+      title makes the preview resolve reliably across scrapers.
+
+      Deliberately carries the couple names only. The ceremony date and venue
+      names are omitted (requirement 1.4 forbids them being readable before the
+      envelope is opened). The share image is the couple's wedding logo on a
+      cream card (no date, no venue), served from /public at a stable, unhashed
+      root path so a crawler can fetch it at an absolute URL. og:image MUST be
+      an absolute URL, so the production domain is written out in full. The
+      `?v=` on the image URL is a cache-buster: bump it whenever the image
+      bytes change so Messenger/Facebook fetch the new file instead of a stale
+      cached copy.
+    -->
+    <meta
+      name="description"
+      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bricxhannah-wedding.vercel.app/" />
+    <meta property="og:title" content="Bricx &amp; Hannah — Wedding Invitation" />
+    <meta
+      property="og:description"
+      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
+    />
+    <meta
+      property="og:image"
+      content="https://bricxhannah-wedding.vercel.app/share-card.png?v=2"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://bricxhannah-wedding.vercel.app/share-card.png?v=2"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The wedding logo of Bricx &amp; Hannah."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bricx &amp; Hannah — Wedding Invitation" />
+    <meta
+      name="twitter:description"
+      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
+    />
+    <meta
+      name="twitter:image"
+      content="https://bricxhannah-wedding.vercel.app/share-card.png?v=2"
+    />
+
     <!-- Favicon is a local inline-simple SVG in Palette colours. No external request. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -23,52 +78,6 @@
     />
 
     <title>Bricx &amp; Hannah — Wedding Invitation</title>
-
-    <!--
-      Share-card metadata. Deliberately carries the couple names only.
-      The ceremony date and the venue names are omitted here because
-      requirement 1.4 forbids them being readable before the envelope is
-      opened, and this markup ships in the static document.
-
-      The share image is the couple's wedding logo (no date, no venue), so it
-      carries nothing requirement 1.4 forbids before the envelope is opened. It
-      is served from /public at a stable, unhashed root path so Facebook's
-      crawler can fetch it at an absolute URL (a bundled src/ asset would get a
-      hashed, unpredictable path the crawler cannot rely on). og:image MUST be
-      an absolute URL, so the production domain is written out in full here.
-    -->
-    <meta
-      name="description"
-      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://bricxhannah-wedding.vercel.app/" />
-    <meta property="og:title" content="Bricx &amp; Hannah — Wedding Invitation" />
-    <meta
-      property="og:description"
-      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
-    />
-    <meta
-      property="og:image"
-      content="https://bricxhannah-wedding.vercel.app/share-card.png"
-    />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1254" />
-    <meta property="og:image:height" content="1254" />
-    <meta
-      property="og:image:alt"
-      content="The wedding logo of Bricx &amp; Hannah."
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Bricx &amp; Hannah — Wedding Invitation" />
-    <meta
-      name="twitter:description"
-      content="An invitation to the wedding of Bricx &amp; Hannah. Open the envelope to see the details."
-    />
-    <meta
-      name="twitter:image"
-      content="https://bricxhannah-wedding.vercel.app/share-card.png"
-    />
   </head>
   <body>
     <div id="root"></div>
