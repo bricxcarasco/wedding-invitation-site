@@ -50,16 +50,7 @@ const CREDITS_FILE = 'CREDITS.md'
 // added so the grid tiles at an even count. The filenames are contractual: the
 // README's replacement procedure is filename-for-filename, and
 // `weddingConfig.js` imports each one by name.
-const EXPECTED_IMAGES = [
-  '01-rings.webp',
-  '02-couple-portrait.webp',
-  '03-ceremony.webp',
-  '04-flowers.webp',
-  '05-venue.webp',
-  '06-outdoor-scenery.webp',
-  '07-reception-details.webp',
-  '08-first-dance.webp',
-]
+const EXPECTED_IMAGES = Array.from({ length: 11 }, (_, i) => `${String(i + 1).padStart(2, '0')}.webp`)
 
 const EXPECTED_ENTRIES = [...EXPECTED_IMAGES, CREDITS_FILE].sort()
 

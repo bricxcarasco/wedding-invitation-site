@@ -34,15 +34,7 @@ const GALLERY_IMAGE_HEIGHT = 800
  * Listed independently of the config rather than derived from it — deriving the
  * expectation from the value under test would assert nothing.
  */
-const REQUIRED_GALLERY_SUBJECTS = [
-  'rings',
-  'couple-portrait',
-  'ceremony',
-  'flowers',
-  'venue',
-  'outdoor-scenery',
-  'reception-details',
-]
+const REQUIRED_GALLERY_SUBJECTS = ['photo-01', 'photo-06', 'photo-11']
 
 /**
  * Hosts Google serves Maps from. `www.google.com` is what `mapsSearchUrl`

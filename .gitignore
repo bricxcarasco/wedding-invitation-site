@@ -39,3 +39,4 @@ dev.sh
 push.sh
 p2.sh
 *.local.sh
+originals/

@@ -12,14 +12,17 @@
 //   - `scripts/generate-placeholders.mjs` carries a third, build-time-only copy
 //     to paint the placeholder images. It never ships in the bundle.
 
-import rings from '../assets/gallery/01-rings.webp'
-import couplePortrait from '../assets/gallery/02-couple-portrait.webp'
-import ceremonyPhoto from '../assets/gallery/03-ceremony.webp'
-import flowers from '../assets/gallery/04-flowers.webp'
-import venuePhoto from '../assets/gallery/05-venue.webp'
-import scenery from '../assets/gallery/06-outdoor-scenery.webp'
-import receptionDetails from '../assets/gallery/07-reception-details.webp'
-import firstDance from '../assets/gallery/08-first-dance.webp'
+import photo01 from '../assets/gallery/01.webp'
+import photo02 from '../assets/gallery/02.webp'
+import photo03 from '../assets/gallery/03.webp'
+import photo04 from '../assets/gallery/04.webp'
+import photo05 from '../assets/gallery/05.webp'
+import photo06 from '../assets/gallery/06.webp'
+import photo07 from '../assets/gallery/07.webp'
+import photo08 from '../assets/gallery/08.webp'
+import photo09 from '../assets/gallery/09.webp'
+import photo10 from '../assets/gallery/10.webp'
+import photo11 from '../assets/gallery/11.webp'
 
 /**
  * The Ceremony_Datetime as a fixed absolute instant, offset-anchored on purpose
@@ -302,72 +305,84 @@ const weddingConfig = {
   },
 
   // 14.5 — every entry pairs a bundled import with alternative text. width and
-  // height carry the intrinsic dimensions of the files so Gallery can satisfy
-  // 6.4 straight from config and reserve layout space before the bytes arrive.
-  //
-  // Every `alt` string below describes the *generated palette placeholder* that
-  // currently occupies that filename — the composition in
-  // `src/assets/gallery/CREDITS.md`'s "Depicts" column — and not a photograph
-  // the couple has yet to take. That is what makes it honest alt text today.
-  //
-  // MUST BE REWRITTEN when a real photograph replaces a file. The swap is
-  // filename-for-filename and needs no code change, so nothing else here moves;
-  // this string is the one thing that silently goes wrong if it is forgotten.
-  // Step 4 of the replacement procedure in CREDITS.md and the README says so.
+  // height carry the intrinsic dimensions of the files (1200x800 .webp exports
+  // of the couple's photos; full-size originals live in originals/gallery/).
+  // Refine each `alt` to describe its photo when convenient.
   gallery: [
     {
-      subject: 'rings',
-      src: rings,
-      alt: 'Concentric sage and cream rings, two of them drawn heavier than the rest, the inner band catching a soft sheen and set with two small pale stones.',
+      subject: 'photo-01',
+      src: photo01,
+      alt: 'Bricx and Hannah, photo 1 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'couple-portrait',
-      src: couplePortrait,
-      alt: 'Two soft sage and cream ellipses overlapping as they lean into one another.',
+      subject: 'photo-02',
+      src: photo02,
+      alt: 'Bricx and Hannah, photo 2 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'ceremony',
-      src: ceremonyPhoto,
-      alt: 'A ceremony arch traced in sage, with pale blossoms scattered along its curve and down both uprights.',
+      subject: 'photo-03',
+      src: photo03,
+      alt: 'Bricx and Hannah, photo 3 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'flowers',
-      src: flowers,
-      alt: 'Three blooms drawn as radial petal forms in light sage and cream.',
+      subject: 'photo-04',
+      src: photo04,
+      alt: 'Bricx and Hannah, photo 4 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'venue',
-      src: venuePhoto,
-      alt: 'A low sun resting on a wide horizon band, a pale colonnade standing along the skyline.',
+      subject: 'photo-05',
+      src: photo05,
+      alt: 'Bricx and Hannah, photo 5 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'outdoor-scenery',
-      src: scenery,
-      alt: 'Four layered hills in deepening sage, receding into a pale cream sky.',
+      subject: 'photo-06',
+      src: photo06,
+      alt: 'Bricx and Hannah, photo 6 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'reception-details',
-      src: receptionDetails,
-      alt: 'A table setting seen from above, its plates, glasses and places composed from circles in cream and silver gray.',
+      subject: 'photo-07',
+      src: photo07,
+      alt: 'Bricx and Hannah, photo 7 of 11.',
       width: 1200,
       height: 800,
     },
     {
-      subject: 'first-dance',
-      src: firstDance,
-      alt: 'Two soft sage and cream figures leaning into one another, framed by sweeping motion arcs and scattered points of light.',
+      subject: 'photo-08',
+      src: photo08,
+      alt: 'Bricx and Hannah, photo 8 of 11.',
+      width: 1200,
+      height: 800,
+    },
+    {
+      subject: 'photo-09',
+      src: photo09,
+      alt: 'Bricx and Hannah, photo 9 of 11.',
+      width: 1200,
+      height: 800,
+    },
+    {
+      subject: 'photo-10',
+      src: photo10,
+      alt: 'Bricx and Hannah, photo 10 of 11.',
+      width: 1200,
+      height: 800,
+    },
+    {
+      subject: 'photo-11',
+      src: photo11,
+      alt: 'Bricx and Hannah, photo 11 of 11.',
       width: 1200,
       height: 800,
     },
