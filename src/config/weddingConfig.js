@@ -159,10 +159,10 @@ const weddingConfig = {
    *   - `principalSponsors` → ninongs / ninangs, two columns of plain names.
    *   - `honorAttendants`   → best man / maid of honor, two { role, name } rows.
    *   - `weddingParty`      → groomsmen / bridesmaids, two columns of names.
-   *   - `secondarySponsors` → one list of names.
    *   - `candleVeilSponsors`→ candle / veil, two side-by-side name lists.
    *   - `cordSponsors`      → one list of names.
    *   - `bearers`           → ring / coin, two { role, name } rows.
+   *   - `flowerGirls`       → one list of names.
    *
    * Every value below is a placeholder in `[...]` form on purpose; replace the
    * bracketed text with the real names when they are confirmed.
@@ -172,15 +172,15 @@ const weddingConfig = {
       groom: {
         title: 'Parents of the Groom',
         members: [
-          { role: 'Father of the Groom', name: "[Father's Name]" },
-          { role: 'Mother of the Groom', name: "[Mother's Name]" },
+          { role: 'Father of the Groom', name: 'Romulo Carasco' },
+          { role: 'Mother of the Groom', name: 'Nora Carasco' },
         ],
       },
       bride: {
         title: 'Parents of the Bride',
         members: [
-          { role: 'Father of the Bride', name: "[Father's Name]" },
-          { role: 'Mother of the Bride', name: "[Mother's Name]" },
+          { role: 'Father of the Bride', name: 'Bernie Manambit' },
+          { role: 'Mother of the Bride', name: 'Delma Toque' },
         ],
       },
     },
@@ -219,50 +219,39 @@ const weddingConfig = {
     },
     honorAttendants: {
       members: [
-        { role: 'Best Man', name: "[Best Man's Name]" },
-        { role: 'Maid of Honor', name: "[Maid of Honor's Name]" },
+        { role: 'Best Man', name: 'Jirjecx Carasco' },
+        { role: 'Maid of Honor', name: 'Jaycel Madellin Manambit' },
       ],
     },
     weddingParty: {
       groomsmen: {
         title: 'Groomsmen',
         names: [
-          '[Groomsman 1]',
-          '[Groomsman 2]',
-          '[Groomsman 3]',
-          '[Groomsman 4]',
-          '[Groomsman 5]',
-          '[Groomsman 6]',
-          '[Groomsman 7]',
-          '[Groomsman 8]',
-          '[Groomsman 9]',
-          '[Groomsman 10]',
+          'Julius Ablis',
+          'Joemarc Ablis',
+          'Zenrick Babaan',
+          'Fritz Bautista',
+          'John Veyle Manalo',
+          'Mark Nino Ignacio',
+          'Naif Quismundo',
+          'John Doe',
+          'John Doe',
         ],
       },
       bridesmaids: {
         title: 'Bridesmaids',
         names: [
-          '[Bridesmaid 1]',
-          '[Bridesmaid 2]',
-          '[Bridesmaid 3]',
-          '[Bridesmaid 4]',
-          '[Bridesmaid 5]',
-          '[Bridesmaid 6]',
-          '[Bridesmaid 7]',
-          '[Bridesmaid 8]',
-          '[Bridesmaid 9]',
-          '[Bridesmaid 10]',
+          'Katrina Jean Angeles',
+          'Jeline Anne Cabrega',
+          'Renalyn Cambel',
+          'Jhannelle Carasco',
+          'Sheena Carillo',
+          'Jerry Mae Hular',
+          'Rizzi Elan Ruiz',
+          'Kathleen Joyce Salgado',
+          'Ann Jeniel Yusores',
         ],
       },
-    },
-    secondarySponsors: {
-      title: 'Secondary Sponsors',
-      names: [
-        '[Secondary Sponsor 1]',
-        '[Secondary Sponsor 2]',
-        '[Secondary Sponsor 3]',
-        '[Secondary Sponsor 4]',
-      ],
     },
     candleVeilSponsors: {
       candle: {
@@ -283,6 +272,10 @@ const weddingConfig = {
         { role: 'Ring Bearer', name: '[Ring Bearer Name]' },
         { role: 'Coin Bearer', name: '[Coin Bearer Name]' },
       ],
+    },
+    flowerGirls: {
+      title: 'Flower Girls',
+      names: ['[Flower Girl 1]', '[Flower Girl 2]'],
     },
   },
 

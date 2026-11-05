@@ -81,7 +81,7 @@ function RoleHeading({ role, name }) {
 }
 
 /**
- * A titled column of plain names (ninongs, groomsmen, secondary sponsors, …).
+ * A titled column of plain names (ninongs, groomsmen, cord sponsors, …).
  * `ordered` renders a numbered list where the sequence matters (the sponsor and
  * wedding-party lists the couple numbered 1–10); otherwise a plain list.
  */
@@ -292,14 +292,6 @@ export function Entourage() {
 
             <Divider />
 
-            {/* 5. Secondary Sponsors. */}
-            <NameColumn
-              title={entourage.secondarySponsors.title}
-              names={entourage.secondarySponsors.names}
-            />
-
-            <Divider />
-
             {/* 6. Candle & Veil Sponsors — same row. */}
             <PairRow
               left={
@@ -330,6 +322,14 @@ export function Entourage() {
             <PairRow
               left={<RoleHeading {...entourage.bearers.members[0]} />}
               right={<RoleHeading {...entourage.bearers.members[1]} />}
+            />
+
+            <Divider />
+
+            {/* 9. Flower Girls. */}
+            <NameColumn
+              title={entourage.flowerGirls.title}
+              names={entourage.flowerGirls.names}
             />
           </div>
         </div>
