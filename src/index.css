@@ -342,6 +342,45 @@
     z-index: 2;
   }
 
+  /* --- Hero couple names: shiny sheen sweep ------------------------------ */
+  /* A soft gloss travels left-to-right across the couple names on a gentle
+     loop. The text is painted with a moving linear-gradient clipped to the
+     glyphs (`background-clip: text`), so only the letterforms light up — no
+     extra markup, no box behind them. The gradient rests at the Sage-deep text
+     colour and carries a brighter Cream highlight band that slides across.
+     `background-position` is the only animated property, so it stays cheap. */
+  .name-shimmer {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* The glint rides an `::after` overlay clipped to the glyphs, NOT the text
+     fill itself — so the base letters always stay solid Sage-deep and can never
+     disappear while the sweep is off-screen or resting. The overlay is a bright
+     Cream highlight band that sweeps across once, then sits fully transparent
+     for the rest of the 3s cycle. Transform + opacity only (compositor-cheap);
+     `background-clip: text` confines the highlight to the letterforms. */
+  .name-shimmer::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(
+      100deg,
+      transparent 38%,
+      var(--color-cream-soft) 50%,
+      transparent 62%
+    );
+    background-size: 220% 100%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: name-shimmer 3s ease-in-out infinite;
+  }
+
   /* --- Entourage disclosure panel: smooth collapse ----------------------- */
   /* The cinematic reveal. Collapsing height is animated with the
      grid-template-rows 0fr→1fr technique: the panel is a one-row grid whose row
@@ -434,6 +473,31 @@
   }
 }
 
+/* The sheen sweep for `.name-shimmer`. The clipped gradient slides from right
+   to left across the glyphs, then pauses out of view so the glint reads as an
+   occasional shine rather than a constant shimmer. Only background-position
+   animates. */
+@keyframes name-shimmer {
+  0% {
+    background-position: 150% 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  33% {
+    background-position: -50% 0;
+    opacity: 1;
+  }
+  43% {
+    opacity: 0;
+  }
+  100% {
+    background-position: -50% 0;
+    opacity: 0;
+  }
+}
+
 /* The click pulse for `.control::after`. A soft bloom: starts small and faintly
    visible at the control's centre, expands to fill it while fading out, then
    settles back to the invisible resting state. Transform and opacity only, so
@@ -509,6 +573,12 @@
   }
   .entourage-panel {
     transition: none !important;
+  }
+  /* The couple-names sheen stops entirely; only the solid base text remains,
+     so it stays fully legible with no motion. */
+  .name-shimmer::after {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }
 

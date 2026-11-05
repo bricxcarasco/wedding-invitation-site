@@ -69,7 +69,10 @@ export function Hero() {
       {/* Line 1 — couple names. The `<h1>`, the display face, and the largest
           type in the hero (2.1, 2.2). */}
       <Reveal delay={2}>
-        <h1 className="font-display text-6xl font-medium leading-tight tracking-tight text-sage-deep sm:text-7xl md:text-8xl">
+        <h1
+          className="name-shimmer font-display text-6xl font-medium leading-tight tracking-tight text-sage-deep sm:text-7xl md:text-8xl"
+          data-text={couple.displayNames}
+        >
           {couple.displayNames}
         </h1>
       </Reveal>

@@ -194,6 +194,11 @@ export function Entourage() {
 
   return (
     <Reveal as="section" id="entourage" className="mx-auto max-w-4xl text-center">
+      {/* Section title in the Parisienne display face, above the toggle. */}
+      <h1 className="mb-8 font-display text-5xl font-medium leading-tight text-sage-deep sm:text-6xl md:text-7xl">
+        Carasco-Manambit Nuptials
+      </h1>
+
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
