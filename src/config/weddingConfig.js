@@ -12,17 +12,17 @@
 //   - `scripts/generate-placeholders.mjs` carries a third, build-time-only copy
 //     to paint the placeholder images. It never ships in the bundle.
 
-import photo01 from '../assets/gallery/01.webp'
-import photo02 from '../assets/gallery/02.webp'
-import photo03 from '../assets/gallery/03.webp'
-import photo04 from '../assets/gallery/04.webp'
-import photo05 from '../assets/gallery/05.webp'
-import photo06 from '../assets/gallery/06.webp'
-import photo07 from '../assets/gallery/07.webp'
-import photo08 from '../assets/gallery/08.webp'
-import photo09 from '../assets/gallery/09.webp'
-import photo10 from '../assets/gallery/10.webp'
-import photo11 from '../assets/gallery/11.webp'
+// Every numbered .webp in the gallery folder is pulled into the build at once
+// via Vite's import.meta.glob (eager), so adding or removing photos is a matter
+// of dropping files in src/assets/gallery/ and re-running the converter — no
+// import line per image to maintain. The map is keyed by path and unordered, so
+// it is sorted by filename to get a deterministic 01 → NN sequence.
+const galleryModules = import.meta.glob('../assets/gallery/*.webp', {
+  eager: true,
+  import: 'default',
+})
+
+const galleryFiles = Object.keys(galleryModules).sort()
 
 /**
  * The Ceremony_Datetime as a fixed absolute instant, offset-anchored on purpose
@@ -288,9 +288,9 @@ const weddingConfig = {
     // and telling guests so is kinder than letting them find out on the day.
     guidance:
       'Semi-formal, garden-formal — dressed for an afternoon you will want ' +
-      'photographs of. The four swatches beside this note are the palette we ' +
+      'photographs of. The swatches beside this note are the palette we ' +
       'built the day around; take them as a guide rather than a uniform, and ' +
-      'anything resting near sage, cream, or soft neutral will sit beautifully ' +
+      'anything resting near sage or soft neutral will sit beautifully ' +
       'in every frame. Pagsanjan in February is warm and humid, so choose ' +
       'light, breathable fabrics over anything you would have to endure. The ' +
       'reception is on grass and the evening runs long, so bring shoes you can ' +
@@ -300,86 +300,20 @@ const weddingConfig = {
   // 14.5 — every entry pairs a bundled import with alternative text. width and
   // height carry the intrinsic dimensions of the files (1200x800 .webp exports
   // of the couple's photos; full-size originals live in originals/gallery/).
+  // The array is generated from whatever numbered .webp files sit in the gallery
+  // folder (see galleryFiles above), so the count tracks the files on disk.
   // Refine each `alt` to describe its photo when convenient.
-  gallery: [
-    {
-      subject: 'photo-01',
-      src: photo01,
-      alt: 'Bricx and Hannah, photo 1 of 11.',
+  gallery: galleryFiles.map((path, index) => {
+    const n = index + 1
+    const padded = String(n).padStart(2, '0')
+    return {
+      subject: `photo-${padded}`,
+      src: galleryModules[path],
+      alt: `Bricx and Hannah, photo ${n} of ${galleryFiles.length}.`,
       width: 1200,
       height: 800,
-    },
-    {
-      subject: 'photo-02',
-      src: photo02,
-      alt: 'Bricx and Hannah, photo 2 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-03',
-      src: photo03,
-      alt: 'Bricx and Hannah, photo 3 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-04',
-      src: photo04,
-      alt: 'Bricx and Hannah, photo 4 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-05',
-      src: photo05,
-      alt: 'Bricx and Hannah, photo 5 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-06',
-      src: photo06,
-      alt: 'Bricx and Hannah, photo 6 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-07',
-      src: photo07,
-      alt: 'Bricx and Hannah, photo 7 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-08',
-      src: photo08,
-      alt: 'Bricx and Hannah, photo 8 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-09',
-      src: photo09,
-      alt: 'Bricx and Hannah, photo 9 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-10',
-      src: photo10,
-      alt: 'Bricx and Hannah, photo 10 of 11.',
-      width: 1200,
-      height: 800,
-    },
-    {
-      subject: 'photo-11',
-      src: photo11,
-      alt: 'Bricx and Hannah, photo 11 of 11.',
-      width: 1200,
-      height: 800,
-    },
-  ],
+    }
+  }),
 
   // Consumed by lib/icalendar.js. There is deliberately NO `location` key here:
   // `buildCeremonyEvent()` reads `ceremony.venueName`, so the venue string

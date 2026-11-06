@@ -45,14 +45,16 @@ const MAX_IMAGE_BYTES = 300 * 1024
 
 const CREDITS_FILE = 'CREDITS.md'
 
-// The gallery images, in the order the gallery renders them. The first seven
-// are requirement 6.1's enumerated subjects; `08-first-dance.webp` is an extra
-// added so the grid tiles at an even count. The filenames are contractual: the
-// README's replacement procedure is filename-for-filename, and
-// `weddingConfig.js` imports each one by name.
-const EXPECTED_IMAGES = Array.from({ length: 11 }, (_, i) => `${String(i + 1).padStart(2, '0')}.webp`)
-
-const EXPECTED_ENTRIES = [...EXPECTED_IMAGES, CREDITS_FILE].sort()
+// The gallery ships a run of zero-padded, two-digit .webp files named 01.webp,
+// 02.webp, … up to however many photos are in the folder. The count is NOT
+// hard-coded: it is read from the folder below and the names are required to be
+// the contiguous sequence 01..NN. `weddingConfig.js` pulls these in with
+// import.meta.glob and sorts by filename, so this contiguous-naming contract is
+// what keeps the gallery's order deterministic.
+//
+// A floor of 7 keeps requirement 6.1 (the enumerated subjects) honoured even as
+// the exact number of photos changes.
+const MIN_GALLERY_IMAGES = 7
 
 const IMAGE_EXTENSIONS = new Set([
   '.webp',
@@ -91,17 +93,34 @@ const galleryFiles = galleryEntries
 const galleryImages = galleryFiles.filter((name) => name !== CREDITS_FILE)
 
 describe('gallery asset folder', () => {
-  it('contains all eight expected placeholder filenames', () => {
-    for (const name of EXPECTED_IMAGES) {
-      expect(galleryFiles, `${name} is missing from src/assets/gallery/`).toContain(name)
-    }
+  it(`holds at least ${MIN_GALLERY_IMAGES} images named as a contiguous 01..NN run`, () => {
+    expect(
+      galleryImages.length,
+      `the gallery should hold at least ${MIN_GALLERY_IMAGES} photos`,
+    ).toBeGreaterThanOrEqual(MIN_GALLERY_IMAGES)
+
+    const expectedSequence = Array.from(
+      { length: galleryImages.length },
+      (_, i) => `${String(i + 1).padStart(2, '0')}.webp`,
+    )
+    expect(
+      galleryImages,
+      'gallery images must be the contiguous run 01.webp, 02.webp, … NN.webp',
+    ).toEqual(expectedSequence)
   })
 
-  it('contains exactly the eight images and CREDITS.md, and nothing else', () => {
-    // Requirement 6.2: one dedicated folder holding precisely the placeholders
-    // and their provenance record. A stray export, an editor backup, or a
-    // leftover PNG from a regeneration run all fail here.
-    expect(galleryFiles).toEqual(EXPECTED_ENTRIES)
+  it('contains exactly the numbered images and CREDITS.md, and nothing else', () => {
+    // Requirement 6.2: one dedicated folder holding precisely the photos and
+    // their provenance record. A stray export, an editor backup, or a leftover
+    // PNG from a regeneration run all fail here.
+    const expectedEntries = [
+      ...Array.from(
+        { length: galleryImages.length },
+        (_, i) => `${String(i + 1).padStart(2, '0')}.webp`,
+      ),
+      CREDITS_FILE,
+    ].sort()
+    expect(galleryFiles).toEqual(expectedEntries)
 
     const directories = galleryEntries
       .filter((entry) => !entry.isFile())

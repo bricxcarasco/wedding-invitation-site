@@ -1,14 +1,17 @@
-// The DressCode section: attire guidance, the dress-code image, and the four
-// Palette swatches beneath it.
+// The DressCode section: attire guidance, the dress-code image, and the Palette
+// swatches beneath it.
 //
-// Requirements: 7.1 (attire guidance sourced from Wedding_Config), 7.2 (four
-// swatches rendering the four Palette values), 7.3 (each colour's name and hex
-// value as text adjacent to its swatch), 10.2 (DressCode is one of the
-// Reveal-wrapped sections).
+// Requirements: 7.1 (attire guidance sourced from Wedding_Config), 7.2 (swatches
+// rendering the Palette values), 7.3 (each colour's name and hex value as text
+// adjacent to its swatch), 10.2 (DressCode is one of the Reveal-wrapped
+// sections).
 //
 // The guidance text and the palette both READ from Wedding_Config (14.6). The
-// dress-code image (`dress-codes.png`) sits below the guidance, and the four
-// colour swatches sit below the image.
+// dress-code image (`dress-codes.png`) sits below the guidance, and the colour
+// swatches sit below the image. One palette colour (Cream) is deliberately
+// filtered out of the swatch row — see EXCLUDED_SWATCH_NAMES below — because it
+// reads as "no colour" against the page's own cream background; it remains a
+// site-wide token and a config palette entry.
 //
 // The one sanctioned hex usage in this file is `backgroundColor: entry.hex` on
 // each swatch. That value originates in `config.palette` and flows straight
@@ -62,7 +65,7 @@ function Swatch({ name, hex }) {
 }
 
 /**
- * The dress code guidance, the dress-code image, and the four Palette swatches.
+ * The dress code guidance, the dress-code image, and the Palette swatches.
  *
  * `Reveal` *is* the `<section>` (via `as="section"`), matching the pattern the
  * other content sections use. The guidance reads as a short warm paragraph in a
@@ -75,8 +78,15 @@ function Swatch({ name, hex }) {
  * rather than distorted even if the box ratio ever differs. `mx-auto` centres
  * it under the text. No shadow or border — the image carries its own frame.
  */
+// Palette colours the DressCode section does NOT show as swatches. Cream is
+// excluded here by name — it is still a site-wide design token (the Cream
+// section banding and gradients in index.css) and still a config palette entry,
+// so it is filtered out of the swatch row only, not removed from the palette.
+const EXCLUDED_SWATCH_NAMES = new Set(['Cream'])
+
 export function DressCode() {
   const { dressCode, palette } = weddingConfig
+  const swatches = palette.filter((entry) => !EXCLUDED_SWATCH_NAMES.has(entry.name))
 
   return (
     <Reveal as="section" id="dress-code" className="mx-auto max-w-2xl text-center">
@@ -92,7 +102,7 @@ export function DressCode() {
         className="mx-auto mt-10 block h-auto w-full max-w-2xl object-contain"
       />
       <div className="mt-10 flex flex-wrap items-start justify-center gap-8">
-        {palette.map((entry) => (
+        {swatches.map((entry) => (
           <Swatch key={entry.hex} name={entry.name} hex={entry.hex} />
         ))}
       </div>

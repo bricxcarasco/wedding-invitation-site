@@ -40,3 +40,51 @@
 .gallery-img--error {
   visibility: hidden;
 }
+
+/* Progressive disclosure — the "See more" remainder.
+   ==========================================================================
+   The region holding photos past the first six. Collapsed, it is clipped to a
+   short peek so the next row shows through, and a bottom-fading mask makes that
+   peek trail off toward transparent (the ~50%-opacity preview of what is
+   below). Expanding grows `max-height` past the tallest the content can be and
+   clears the mask, so the remaining rows glide in and resolve to full opacity
+   in one smooth motion.
+
+   Why max-height rather than height: the content height is unknown (it depends
+   on how many photos remain and how the responsive grid wraps), and a plain
+   `height: auto` cannot be transitioned. A generous `max-height` ceiling that
+   exceeds any realistic content height transitions cleanly and, once open, is
+   effectively "no limit". The collapsed peek is a small fixed value.
+
+   The transition animates only `max-height` and `opacity` — mask changes are
+   not animated (no `mask` in the transition list), so the three-property
+   ceiling (10.5) holds. */
+.gallery-more {
+  max-height: 11rem; /* a peek: roughly the top of the first hidden row */
+  overflow: hidden;
+  opacity: 0.5; /* the preview sits at half opacity until revealed (6-image cue) */
+  /* Fade the peek toward transparent at its lower edge so it reads as "more
+     below" rather than a hard crop. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  transition:
+    max-height 700ms ease-in-out,
+    opacity 700ms ease-in-out;
+}
+
+.gallery-more--open {
+  /* Ceiling well above any realistic remaining-photo stack height; once open it
+     behaves as "unclamped" while still being a transitionable value. */
+  max-height: 1000rem;
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
